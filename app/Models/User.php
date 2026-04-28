@@ -15,13 +15,6 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    use HasFactory, Notifiable;
-
     protected $table = 'akun';
     protected $primaryKey = 'username';
     public $incrementing = false;

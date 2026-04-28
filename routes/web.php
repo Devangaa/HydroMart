@@ -3,32 +3,42 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (Auth::check() && Auth::user()->role === 'admin') {
-        return redirect('/dashboard');
+        return redirect()->route('admin.dashboard');
     }
-
     return view('landing');
 })->name('landing');
 
 Route::middleware(['guest'])->group(function () {
-
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-
 });
 
 Route::middleware(['auth'])->group(function () {
     
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard'); 
-    })->middleware('role:admin')->name('admin.dashboard');
+    Route::middleware('role:admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard'); 
+        })->name('dashboard');
+
+        Route::resource('kelolaproduk', ProductController::class)->names([
+            'index'   => 'produk.index',
+            'create'  => 'produk.create',
+            'store'   => 'produk.store',
+            'show'    => 'produk.show',
+            'edit'    => 'produk.edit',
+            'update'  => 'produk.update',
+            'destroy' => 'produk.destroy',
+        ]);
+    });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

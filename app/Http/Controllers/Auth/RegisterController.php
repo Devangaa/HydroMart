@@ -23,7 +23,7 @@ class RegisterController extends Controller
                 'min:5',
                 'max:20',
                 'alpha_dash',
-                'unique:akun,username,',
+                'unique:akun,username',
             ],
             'password'      => 'required|string|min:8|confirmed',
             'nama_lengkap'  => 'required|string|max:255',
