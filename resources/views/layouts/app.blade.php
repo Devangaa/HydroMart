@@ -22,7 +22,7 @@
 
     <x-navbar />
 
-    <main class="flex-grow flex {{ Route::is('login') || Route::is('register') ? 'items-center justify-center' : '' }} py-10 px-4">
+    <main class="flex-grow flex {{ Route::is('login') || Route::is('register') ? 'items-center justify-center' : '' }} py-10 ">
         @yield('content')
     </main>
 
