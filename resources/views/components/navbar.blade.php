@@ -2,9 +2,9 @@
     <div class="max-w-7xl mx-auto w-full flex justify-between items-center transition-all duration-300">
         
         <a href="{{ route('landing') }}" class="flex items-center gap-2 group">
-            <div class="bg-green-600 p-2 rounded-lg">
-                <div class="w-4 h-4 bg-white rounded-full"></div>
-            </div>
+            <img src="{{ asset('img/logo-hydro.png') }}" 
+                alt="Logo HydroMart" 
+                class="w-11 h-11 object-contain">
             <span class="text-2xl font-bold text-gray-900 tracking-tight">Hydro<span class="text-green-600">Mart</span></span>
         </a>
 

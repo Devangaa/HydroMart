@@ -4,9 +4,9 @@
             
             <div class="col-span-1">
                 <div class="flex items-center gap-2 mb-6">
-                    <div class="bg-green-600 p-2 rounded-lg">
-                        <div class="w-4 h-4 bg-white rounded-full"></div>
-                    </div>
+                    <img src="{{ asset('img/logo-hydro.png') }}" 
+                        alt="Logo HydroMart" 
+                        class="w-9 h-9 object-contain">
                     <span class="text-xl font-bold text-gray-900 tracking-tight">HydroMart</span>
                 </div>
                 @if(auth()->check() && auth()->user()->role == 'admin')
