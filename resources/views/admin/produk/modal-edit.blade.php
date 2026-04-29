@@ -65,7 +65,7 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="harga" x-model="editData.harga" required 
+                        <input type="number" name="harga" :value="Math.floor(editData.harga)" @input="editData.harga = $event.target.value" step="1" required 
                             class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm @error('harga') ring-2 ring-red-500 @enderror">
                     </div>
 

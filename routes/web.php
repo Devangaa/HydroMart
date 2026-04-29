@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\LayananController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
             return view('admin.dashboard'); 
         })->name('dashboard');
 
-        Route::resource('kelolaproduk', ProductController::class)->names([
+        Route::resource('kelola-produk', ProductController::class)->names([
             'index'   => 'produk.index',
             'create'  => 'produk.create',
             'store'   => 'produk.store',
@@ -37,6 +38,16 @@ Route::middleware(['auth'])->group(function () {
             'edit'    => 'produk.edit',
             'update'  => 'produk.update',
             'destroy' => 'produk.destroy',
+        ]);
+
+        Route::resource('kelola-layanan', LayananController::class)->names([
+            'index'   => 'layanan.index',
+            'create'  => 'layanan.create',
+            'store'   => 'layanan.store',
+            'show'    => 'layanan.show',
+            'edit'    => 'layanan.edit',
+            'update'  => 'layanan.update',
+            'destroy' => 'layanan.destroy',
         ]);
     });
 

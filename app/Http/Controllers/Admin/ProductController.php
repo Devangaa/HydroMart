@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -102,7 +103,7 @@ class ProductController extends Controller
                 ->with('success', 'Produk "' . $product->nama_produk . '" berhasil dipulihkan!');
         }
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable',
             'harga' => 'required|integer',
@@ -123,6 +124,13 @@ class ProductController extends Controller
             'berat.required'       => 'Berat produk wajib diisi.',
             'berat.integer'        => 'Berat harus berupa angka (gram).',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('admin.produk.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('editingProductId', $id);
+        }
 
         $data = $request->all();
 
