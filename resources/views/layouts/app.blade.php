@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HydroMart - @yield('title')</title>
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-hydro.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-hydro2.ico') }}">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -27,6 +28,17 @@
     </main>
 
     <x-footer />
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800, 
+                once: true,   
+                offset: 100,
+            });
+        });
+    </script>
 
 </body>
 </html>

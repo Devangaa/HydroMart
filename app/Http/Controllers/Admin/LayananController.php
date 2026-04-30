@@ -7,6 +7,7 @@ use App\Models\Layanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class LayananController extends Controller
 {
@@ -43,26 +44,35 @@ class LayananController extends Controller
             'nama_layanan' => 'required|string|max:255',
             'harga' => 'required|numeric',
             'deskripsi' => 'nullable',
-            'foto_layanan' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048'
         ], [
-            'nama_produk.required' => 'Nama produk wajib diisi.',
-            'harga.required'       => 'Harga produk harus diisi.',
+            'nama_layanan.required' => 'Nama layanan wajib diisi.',
+            'harga.required'       => 'Harga layanan harus diisi.',
             'harga.numeric'        => 'Harga harus berupa angka.',
-            'foto_produk.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_produk.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_produk.max'      => 'Ukuran gambar maksimal adalah 2MB.',
+            'foto_layanan.*.image'    => 'File yang diunggah harus berupa gambar.',
+            'foto_layanan.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_layanan.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
         ]);
 
         $data = $request->all();
+        $filenames = [];
 
         if ($request->hasFile('foto_layanan')) {
-            $file = $request->file('foto_layanan');
-            $nama_file = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/layanan'), $nama_file);
-            $data['foto_layanan'] = $nama_file;
+            // Ambil maksimal 4 file pertama
+            $files = array_slice($request->file('foto_layanan'), 0, 4);
+
+            foreach ($files as $file) {
+                // Rename file agar unik & aman: [Timestamp]-[Random].ext
+                $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/layanan'), $filename);
+                $filenames[] = $filename;
+            }
         }
 
+        $data['foto_layanan'] = $filenames;
+
         Layanan::create($data);
+        
         return redirect()->back()->with('success', 'Layanan berhasil ditambahkan!');
     }
 
@@ -79,14 +89,14 @@ class LayananController extends Controller
             'nama_layanan' => 'required|string|max:255',
             'harga' => 'required|numeric',
             'deskripsi' => 'nullable',
-            'foto_layanan' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048'
         ], [
-            'nama_produk.required' => 'Nama produk wajib diisi.',
-            'harga.required'       => 'Harga produk harus diisi.',
+            'nama_layanan.required' => 'Nama layanan wajib diisi.',
+            'harga.required'       => 'Harga layanan harus diisi.',
             'harga.numeric'        => 'Harga harus berupa angka.',
-            'foto_produk.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_produk.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_produk.max'      => 'Ukuran gambar maksimal adalah 2MB.',
+            'foto_layanan.*.image'    => 'File yang diunggah harus berupa gambar.',
+            'foto_layanan.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_layanan.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
         ]);
 
         if ($validator->fails()) {
@@ -97,19 +107,39 @@ class LayananController extends Controller
         }
 
         $data = $request->all();
+        $currentImages = $layanan->foto_layanan ?? [];
 
-        if ($request->hasFile('foto_layanan')) {
-            if ($layanan->foto_layanan && File::exists(public_path('uploads/layanan/' . $layanan->foto_layanan))) {
-                File::delete(public_path('uploads/layanan/' . $layanan->foto_layanan));
+
+        if ($request->has('remove_images')) {
+            foreach ($request->remove_images as $imageName) {
+                $filePath = public_path('uploads/layanan/' . $imageName);
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                }
+                $currentImages = array_values(array_diff($currentImages, [$imageName]));
             }
-
-            $file = $request->file('foto_layanan');
-            $nama_file = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/layanan'), $nama_file);
-            $data['foto_layanan'] = $nama_file;
         }
 
-        $layanan->update($data);
+        if ($request->hasFile('foto_layanan')) {
+            $files = $request->file('foto_layanan');
+            
+            foreach ($files as $file) {
+                if (count($currentImages) < 4) { 
+                    $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/layanan'), $filename);
+                    $currentImages[] = $filename;
+                }
+            }
+        }
+
+        $data['foto_layanan'] = $currentImages;
+        $layanan->update([
+            'nama_layanan' => $request->nama_layanan,
+            'harga'       => $request->harga,
+            'deskripsi'   => $request->deskripsi,
+            'foto_layanan' => $currentImages,
+        ]);
+        
         return redirect()->back()->with('success', 'Layanan diperbarui!');
     }
 

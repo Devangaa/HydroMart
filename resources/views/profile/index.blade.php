@@ -6,7 +6,7 @@
 <div class="w-full max-w-4xl mx-auto">
     
     <div class="mb-8">
-        <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">
+        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase">
             Data Akun Anda
         </span>
         <h1 class="text-3xl font-extrabold text-gray-900 mt-4 tracking-tight">Data Akun</h1>

@@ -4,7 +4,7 @@
             
             <div class="col-span-1">
                 <div class="flex items-center gap-2 mb-6">
-                    <img src="{{ asset('img/logo-hydro.png') }}" 
+                    <img src="{{ asset('img/logo-hydro2.ico') }}" 
                         alt="Logo HydroMart" 
                         class="w-9 h-9 object-contain">
                     <span class="text-xl font-bold text-gray-900 tracking-tight">HydroMart</span>
@@ -15,7 +15,7 @@
                 </p>
                 @else
                 <p class="text-sm leading-relaxed text-gray-500">
-                    Sistem Informasi Web App Terintegrasi untuk Sinkronisasi E-Commerce Hidroponik.
+                    Sistem Informasi Web App Terintegrasi E-Commerce Hidroponik.
                 </p>
                 @endif
             </div>
@@ -36,8 +36,12 @@
                 <div>
                     <h4 class="text-gray-900 font-bold mb-6 text-base">Layanan</h4>
                     <ul class="space-y-4 text-sm font-medium">
-                        <li><a href="#" class="hover:text-green-600 transition">E-Commerce</a></li>
-                        <li><a href="#" class="hover:text-green-600 transition">Manajemen Stok</a></li>
+                        <li><a href="{{ route('admin.produk.index') }}" class="hover:text-green-600 transition">Kelola Produk</a></li>
+                        <li><a href="{{ route('admin.layanan.index') }}" class="hover:text-green-600 transition">Kelola Layanan</a></li>
+                        <li><a href="#" class="hover:text-green-600 transition">Transaksi</a></li>
+                        <li><a href="#" class="hover:text-green-600 transition">Reward</a></li>
+                        <li><a href="#" class="hover:text-green-600 transition">Ulasan</a></li>
+                        <li><a href="#" class="hover:text-green-600 transition">Keuangan</a></li>
                         <li><a href="#" class="hover:text-green-600 transition">Laporan</a></li>
                         <li><a href="#" class="hover:text-green-600 transition">Dashboard</a></li>
                     </ul>
@@ -47,8 +51,8 @@
             <div>
                 <h4 class="text-gray-900 font-bold mb-6 text-base">Kontak</h4>
                 <ul class="space-y-4 text-sm font-medium text-gray-500">
-                    <li class="italic">+62 852 3612 2776</li>
-                    <li class="italic">Jember, Indonesia</li>
+                    <li>+62 852 3612 2776</li>
+                    <li>Jember, Indonesia</li>
                 </ul>
             </div>
         </div>

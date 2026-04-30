@@ -5,7 +5,7 @@
 @section('content')
 <div class="w-full">
     <section id="hero" class="max-w-6xl mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12">
-        <div class="flex-1 text-left">
+        <div data-aos="fade-right" class="flex-1 text-left">
             <span class="inline-block px-4 py-1.5 bg-green-100 text-green-700 text-xs font-bold rounded-full mb-6">
                 HydroMart
             </span>
@@ -18,7 +18,7 @@
             
             <div class="flex gap-4">
                 @if (Auth::check())
-                    <a href="#" class="px-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200">
+                    <a href="{{ route('produk.index') }}" class="px-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200">
                         Mulai Sekarang
                     </a>
                 @else
@@ -29,8 +29,8 @@
             </div>
         </div>
 
-        <div class="flex-1 flex justify-center md:justify-end">
-            <div class="relative w-full max-w-[420px] aspect-square bg-green-50 rounded-[4rem] border-8 border-white shadow-2xl shadow-green-100/50 overflow-hidden group">
+        <div data-aos="fade" class="flex-1 flex justify-center md:justify-end">
+            <div class="relative w-full max-w-[420px] aspect-square bg-green-50 rounded-[3rem] border-8 border-white shadow-2xl shadow-green-100/50 overflow-hidden group">
                 
                 <img src="{{ asset('img/hero-hydro.webp') }}" 
                     alt="Hidroponik" 
@@ -60,7 +60,7 @@
         </style>
     </section>
 
-    <section class="bg-green-100 py-12">
+    <section data-aos="fade-up" class="bg-green-100 py-12">
         <div class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
                 <h3 class="text-3xl font-extrabold text-green-900">50+</h3>
@@ -81,7 +81,7 @@
         </div>
     </section>
 
-    <section id="tentang" class="max-w-6xl mx-auto px-4 py-24 flex flex-col-reverse md:flex-row items-center gap-20">
+    <section data-aos="fade-up" id="tentang" class="max-w-6xl mx-auto px-4 py-24 flex flex-col-reverse md:flex-row items-center gap-20">
         <div class="flex-1">
             <div class="w-full aspect-square bg-green-50 rounded-[3rem] border-2 border-green-100/50 p-6 md:p-12 flex items-center justify-center overflow-hidden">
                 
@@ -114,7 +114,7 @@
         </div>
     </section>
 
-    <section class="bg-green-100 py-24">
+    <section data-aos="fade-up" class="bg-green-100 py-24">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-16">
                 <span class="px-4 py-1.5 bg-green-200 text-green-700 text-xs font-bold rounded-full mb-4 inline-block">
@@ -170,7 +170,7 @@
         </div>
     </section>
 
-    <section class="py-24">
+    <section data-aos="fade-up" class="py-24">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-20">
                 <span class="px-4 py-1.5 bg-green-100 text-green-700 text-xs font-bold rounded-full mb-4 inline-block">
@@ -181,7 +181,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 relative">
-                {{-- Langkah 1 --}}
+
                 <div class="text-center flex flex-col items-center">
                     <div class="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-xl font-black mb-6 shadow-xl shadow-green-200 relative z-10">
                         1
@@ -190,7 +190,6 @@
                     <p class="text-gray-500 text-xs leading-relaxed">Buat akun gratis untuk mulai mengakses platform HydroMart.</p>
                 </div>
 
-                {{-- Langkah 2 --}}
                 <div class="text-center flex flex-col items-center">
                     <div class="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-xl font-black mb-6 shadow-xl shadow-green-200 relative z-10">
                         2
@@ -199,7 +198,6 @@
                     <p class="text-gray-500 text-xs leading-relaxed">Lihat berbagai produk dan layanan hidroponik berkualitas.</p>
                 </div>
 
-                {{-- Langkah 3 --}}
                 <div class="text-center flex flex-col items-center">
                     <div class="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-xl font-black mb-6 shadow-xl shadow-green-200 relative z-10">
                         3
@@ -208,7 +206,6 @@
                     <p class="text-gray-500 text-xs leading-relaxed">Pilih produk favorit Anda dan tambahkan ke keranjang belanja.</p>
                 </div>
 
-                {{-- Langkah 4 --}}
                 <div class="text-center flex flex-col items-center">
                     <div class="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center text-xl font-black mb-6 shadow-xl shadow-green-200 relative z-10">
                         4

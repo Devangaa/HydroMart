@@ -15,4 +15,10 @@ class Layanan extends Model
         'foto_layanan',
         'is_delete'
     ];
+
+    protected $casts = [
+        'harga' => 'decimal:2',
+        'is_delete' => 'boolean',
+        'foto_layanan' => 'array',
+    ];
 }

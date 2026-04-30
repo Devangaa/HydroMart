@@ -29,6 +29,7 @@ class Product extends Model
         'is_delete' => 'boolean',
         'jumlah_stok' => 'integer',
         'berat' => 'integer',
+        'foto_produk' => 'array',
     ];
 
     // Scope untuk mempermudah pemanggilan produk yang belum dihapus
@@ -37,4 +38,10 @@ class Product extends Model
     {
         return $query->where('is_delete', false);
     }
+
+    public function getSlugAttribute(): string
+    {
+        return str_replace(' ', '-', strtolower($this->nama_produk));
+    }
+
 }

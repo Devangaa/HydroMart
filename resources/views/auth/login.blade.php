@@ -6,9 +6,9 @@
 <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100 w-full max-w-md">
     
     <div class="flex justify-center mb-6">
-        <div class="bg-green-100 p-4 rounded-lg">
-            <div class="w-8 h-8 bg-green-500 rounded-full shadow-sm"></div>
-        </div>
+        <img src="{{ asset('img/logo-hydro2.ico') }}" 
+                alt="Logo HydroMart" 
+                class="w-20 h-20 object-contain">
     </div>
 
     <h2 class="text-2xl font-bold text-center text-gray-900 mb-1">Masuk ke Akun</h2>
@@ -73,7 +73,7 @@
                 <div class="w-full border-t border-gray-100"></div>
             </div>
             <div class="relative flex justify-center text-xs">
-                <span class="bg-white px-3 text-gray-300 font-medium italic">atau</span>
+                <span class="bg-white px-3 text-gray-300 font-medium">atau</span>
             </div>
         </div>
 

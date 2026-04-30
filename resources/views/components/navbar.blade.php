@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto w-full flex justify-between items-center transition-all duration-300">
         
         <a href="{{ route('landing') }}" class="flex items-center gap-2 group">
-            <img src="{{ asset('img/logo-hydro.png') }}" 
+            <img src="{{ asset('img/logo-hydro2.ico') }}" 
                 alt="Logo HydroMart" 
                 class="w-11 h-11 object-contain">
             <span class="text-2xl font-bold text-gray-900 tracking-tight">Hydro<span class="text-green-600">Mart</span></span>
@@ -12,7 +12,7 @@
             @if(!Route::is('login', 'register'))
                 @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
                     <div class="hidden md:flex items-center gap-8 mr-2">
-                        <a href="#produk" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Produk</a>
+                        <a href="{{ route('produk.index') }}" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Produk</a>
                         <a href="#layanan" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Layanan</a>
                     </div>
                 @endif

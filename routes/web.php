@@ -3,7 +3,8 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\LayananController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,9 @@ Route::get('/', function () {
     }
     return view('landing');
 })->name('landing');
+
+Route::get('/produk', [PublicProductController::class, 'index'])->name('produk.index');
+Route::get('/produk/{id}', [PublicProductController::class, 'show'])->name('produk.show');
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -30,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
             return view('admin.dashboard'); 
         })->name('dashboard');
 
-        Route::resource('kelola-produk', ProductController::class)->names([
+        Route::resource('kelola-produk', AdminProductController::class)->names([
             'index'   => 'produk.index',
             'create'  => 'produk.create',
             'store'   => 'produk.store',
