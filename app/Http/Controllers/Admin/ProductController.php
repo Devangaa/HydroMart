@@ -90,8 +90,19 @@ class ProductController extends Controller
 
         $data['foto_produk'] = $filenames;
 
-        Product::create($data);
+        Product::create([
+            'nama_produk' => $request->nama_produk,
+            'slug' => Str::slug($request->nama_produk),
+            'kategori'    => $request->kategori,
+            'harga'       => $request->harga,
+            'jumlah_stok' => $request->jumlah_stok,
+            'unit'        => $request->unit,
+            'berat'       => $request->berat,
+            'deskripsi'   => $request->deskripsi,
+            'foto_produk' => $filenames,
+        ]);
 
+        
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan!');
     }
 
@@ -106,6 +117,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nama_produk' => 'required|string|max:255',
+            'slug' => Str::slug($request->nama_produk),
             'deskripsi' => 'nullable',
             'harga' => 'required|integer',
             'jumlah_stok' => 'required|integer',
@@ -161,6 +173,7 @@ class ProductController extends Controller
         $data['foto_produk'] = $currentImages;
         $product->update([
             'nama_produk' => $request->nama_produk,
+            'slug' => Str::slug($request->nama_produk),
             'kategori'    => $request->kategori,
             'harga'       => $request->harga,
             'jumlah_stok' => $request->jumlah_stok,

@@ -13,7 +13,7 @@
                 @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
                     <div class="hidden md:flex items-center gap-8 mr-2">
                         <a href="{{ route('produk.index') }}" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Produk</a>
-                        <a href="#layanan" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Layanan</a>
+                        <a href="{{ route('layanan.index') }}" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Layanan</a>
                     </div>
                 @endif
             @endif

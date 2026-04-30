@@ -13,7 +13,7 @@ class ProductController extends Controller
         $search = $request->input('search');
         $selectedCategory = $request->input('category');
 
-        $query = Product::query()->latest();
+        $query = Product::query()->where('is_delete', 0)->latest();
 
         if ($search) {
             $query->where('nama_produk', 'like', "%{$search}%");
@@ -24,6 +24,7 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(20);
+
         $categories = Product::distinct()->pluck('kategori')->filter();
 
         return view('produk.index', compact('products', 'search', 'selectedCategory', 'categories'));
@@ -32,12 +33,13 @@ class ProductController extends Controller
     public function show($slug)
     {
         // Cari product yang slug-nya cocok
-        $product = Product::where('slug', $slug)->firstOrFail();
+        $product = Product::where('slug', $slug)->where('is_delete', 0)->firstOrFail();
         
         abort_if(!$product, 404);
         
         $relatedProducts = Product::where('kategori', $product->kategori)
             ->where('id', '!=', $product->id)
+            ->where('is_delete', 0)
             ->limit(4)
             ->get();
 

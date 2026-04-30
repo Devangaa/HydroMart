@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\ProductController as PublicProductController;
+use App\Http\Controllers\LayananController as PublicLayananController;
 use App\Http\Controllers\Admin\LayananController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,10 @@ Route::get('/', function () {
 })->name('landing');
 
 Route::get('/produk', [PublicProductController::class, 'index'])->name('produk.index');
-Route::get('/produk/{id}', [PublicProductController::class, 'show'])->name('produk.show');
+Route::get('/produk/{slug}', [PublicProductController::class, 'show'])->name('produk.show');
+
+Route::get('/layanan', [PublicLayananController::class, 'index'])->name('layanan.index');
+Route::get('/layanan/{slug}', [PublicLayananController::class, 'show'])->name('layanan.show');
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

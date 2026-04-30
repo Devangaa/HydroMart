@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('title', $product->nama_produk)
+@section('title', $layanan->nama_layanan)
 
 @section('content')
 <div class="w-full min-h-screen bg-gray-50/50 pb-20" 
      x-data="{ 
         {{-- Logika untuk menentukan foto default saat halaman dimuat --}}
-        defaultAvatar: 'https://ui-avatars.com/api/?name={{ urlencode($product->nama_produk) }}',
-        activePhoto: '{{ (is_array($product->foto_produk) && count($product->foto_produk) > 0) ? asset('uploads/produk/' . $product->foto_produk[0]) : '' }}',
+        defaultAvatar: 'https://ui-avatars.com/api/?name={{ urlencode($layanan->nama_layanan) }} {{--&background=22c55e&color=fff&bold=true--}}',
+        activePhoto: '{{ (is_array($layanan->foto_layanan) && count($layanan->foto_layanan) > 0) ? asset('uploads/layanan/' . $layanan->foto_layanan[0]) : null }}',
         
         {{-- Inisialisasi activePhoto jika kosong --}}
         init() {
             if (!this.activePhoto) this.activePhoto = this.defaultAvatar;
         },
         quantity: 1, 
-        maxStock: {{ $product->jumlah_stok ?? 0}},
+        maxStock: {{ $layanan->jumlah_stok ?? 0 }},
         validateInput() {
             if (this.quantity === '' || isNaN(this.quantity)) this.quantity = 1;
             if (parseInt(this.quantity) > this.maxStock) this.quantity = this.maxStock;
@@ -26,7 +26,7 @@
         <nav class="flex mb-8" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('produk.index') }}" class="text-sm font-bold text-gray-400 hover:text-green-600 transition-colors flex items-center gap-2">
+                    <a href="{{ route('layanan.index') }}" class="text-sm font-bold text-gray-400 hover:text-green-600 transition-colors flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
@@ -43,19 +43,19 @@
                 <div class="bg-white rounded-[3rem] overflow-hidden aspect-square flex items-center justify-center relative shadow-sm border border-gray-100">
                     {{-- Foto Utama menggunakan x-bind (:src) --}}
                     <img :src="activePhoto" 
-                         alt="{{ $product->nama_produk }}" 
+                         alt="{{ $layanan->nama_layanan }}" 
                          class="w-full h-full object-cover transition-all duration-500">
                 </div>
                 
                 {{-- Loop Galeri Foto --}}
                 <div class="flex gap-4 overflow-x-auto pb-2">
-                    @if(is_array($product->foto_produk) && count($product->foto_produk) > 0)
+                    @if(is_array($layanan->foto_layanan) && count($layanan->foto_layanan) > 0)
                         {{-- Tampilkan Foto-foto yang ada di database --}}
-                        @foreach($product->foto_produk as $foto)
-                        <div @click="activePhoto = '{{ asset('uploads/produk/'.$foto) }}'" 
+                        @foreach($layanan->foto_layanan as $foto)
+                        <div @click="activePhoto = '{{ asset('uploads/layanan/'.$foto) }}'" 
                             class="w-20 h-20 flex-shrink-0 bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 transition-all"
                             :class="activePhoto.includes('{{ $foto }}') ? 'border-green-500 scale-95' : 'border-transparent hover:border-gray-200'">
-                            <img src="{{ asset('uploads/produk/'.$foto) }}" class="w-full h-full object-cover">
+                            <img src="{{ asset('uploads/layanan/'.$foto) }}" class="w-full h-full object-cover">
                         </div>
                         @endforeach
                     @else
@@ -68,11 +68,11 @@
                 </div>
             </div>
 
-            {{-- BAGIAN KANAN: DETAIL PRODUK --}}
+            {{-- BAGIAN KANAN: DETAIL LAYANAN --}}
             <div class="space-y-8" data-aos="fade-left">
                 <div>
-                    <span class="text-green-600 text-xs font-black uppercase tracking-widest">{{ $product->kategori }}</span>
-                    <h1 class="text-3xl font-black text-gray-900 mt-2 tracking-tight">{{ $product->nama_produk }}</h1>
+                    <span class="text-green-600 text-xs font-black uppercase tracking-widest">{{ $layanan->kategori }}</span>
+                    <h1 class="text-3xl font-black text-gray-900 mt-2 tracking-tight">{{ $layanan->nama_layanan }}</h1>
                     
                     <div class="flex items-center gap-4 mt-4">
                         <div class="flex items-center gap-1 text-yellow-400">
@@ -82,47 +82,26 @@
                             <span class="text-gray-900 font-black text-sm ml-1">4.9</span>
                         </div>
                         <span class="text-gray-400 text-sm font-bold">(128 ulasan)</span>
-                        <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                        <span class="text-green-600 text-sm font-black">Stok: {{ $product->jumlah_stok }} {{ $product->unit }}</span>
                     </div>
                 </div>
 
                 <div class="bg-green-50 rounded-[2rem] p-8 border border-green-100/50">
-                    <p class="text-green-700 text-[10px] font-black uppercase tracking-widest mb-1">Harga per {{ $product->unit }}</p>
+                    <p class="text-green-700 text-[10px] font-black uppercase tracking-widest mb-1">Harga per {{ $layanan->unit }}</p>
                     <div class="flex items-baseline gap-1">
-                        <span class="text-4xl font-black text-green-700">Rp{{ number_format($product->harga, 0, ',', '.') }}</span>
-                        <span class="text-green-600/60 font-bold">/ {{ $product->unit }}</span>
+                        <span class="text-4xl font-black text-green-700">Rp{{ number_format($layanan->harga, 0, ',', '.') }}</span>
+                        <span class="text-green-600/60 font-bold">/ Layanan</span>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Deskripsi Produk</h3>
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Deskripsi Layanan</h3>
                     <p class="text-gray-600 leading-relaxed font-medium">
                         {{-- Menggunakan nl2br agar enter di admin terbaca --}}
-                        {!! $product->deskripsi ? nl2br(e($product->deskripsi)) : 'Sayuran segar berkualitas tinggi, dipanen langsung dari Greenhouse Jember.' !!}
+                        {!! $layanan->deskripsi ? nl2br(e($layanan->deskripsi)) : '-' !!}
                     </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                    <div class="flex items-center bg-gray-100 rounded-xl p-1 w-fit border border-gray-200">
-                        <button type="button" 
-                                @click="if(quantity > 1) quantity--" 
-                                class="w-10 h-10 flex items-center justify-center text-2xl font-bold text-gray-500 hover:text-green-600 transition select-none">
-                            -
-                        </button>
-
-                        <input type="number" 
-                            x-model="quantity" 
-                            @input="validateInput()"
-                            @blur="validateInput()"
-                            class="w-12 bg-transparent text-center font-black text-gray-900 border-none focus:ring-0 text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-
-                        <button type="button" 
-                                @click="if(quantity < maxStock) quantity++" 
-                                class="w-10 h-10 flex items-center justify-center text-2xl font-bold text-gray-500 hover:text-green-600 transition select-none">
-                            +
-                        </button>
-                    </div>
                     @auth
                         <button class="flex-1 bg-green-100 text-green-700 font-black py-3 px-6 rounded-xl hover:bg-green-200 transition-all text-sm">
                             + Keranjang
@@ -145,23 +124,20 @@
 
         {{-- INFO DETAIL & ULASAN --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-20">
-            {{-- Informasi Produk --}}
+            {{-- Informasi Layanan --}}
             <div class="bg-white rounded-[2.5rem] border border-gray-100 p-10 shadow-sm" data-aos="fade-up">
                 <div class="flex items-center gap-3 mb-8">
                     <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
-                    <h2 class="text-xl font-black text-gray-900">Informasi Produk</h2>
+                    <h2 class="text-xl font-black text-gray-900">Informasi Layanan</h2>
                 </div>
                 
                 <div class="space-y-4">
                     @php
                         $details = [
-                            'Nama Produk' => $product->nama_produk,
-                            'Kategori' => $product->kategori,
-                            'Berat' => ($product->berat ?? '200') . ' gram / ' . $product->unit,
-                            'Metode Tanam' => 'Sistem Hidroponik NFT',
-                            'Kondisi' => 'Segar Harian',
+                            'Nama Layanan' => $layanan->nama_layanan,
+                            'Kondisi' => 'barang baru',
                             'Asal' => 'Jember, Jawa Timur',
                         ];
                     @endphp
@@ -169,9 +145,7 @@
                     <div class="flex justify-between py-4 border-b border-gray-50 last:border-0">
                         <span class="text-gray-400 font-bold text-sm">{{ $label }}</span>
                         <span class="text-gray-900 font-black text-sm text-right">
-                            @if($label == 'Kategori')
-                                <span class="bg-green-100 text-green-600 px-3 py-1 rounded-lg text-[10px] uppercase">{{ $value }}</span>
-                            @elseif($label == 'Kondisi')
+                            @if($label == 'Kondisi')
                                 <span class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] uppercase font-black">{{ $value }}</span>
                             @else
                                 {{ $value }}
