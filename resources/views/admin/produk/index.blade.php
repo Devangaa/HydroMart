@@ -90,26 +90,60 @@
             </div>
 
             <div data-aos="fade-up">
-                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm mb-6">
-                    <form action="{{ route('admin.produk.index') }}" method="GET" class="flex flex-wrap gap-4 items-center justify-between">
-                        <div class="relative flex-1 min-w-[300px]">
-                            <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." 
-                                class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm mb-6 relative overflow-visible">
+                    <form action="{{ route('admin.produk.index') }}" method="GET" class="flex flex-col gap-4 sm:flex-row sm:flex-wrap items-start justify-between">
+                        <div class="flex flex-1 items-center gap-2 min-w-0">
+                            <div class="relative flex-1 min-w-0">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                </span>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama produk..." 
+                                    class="w-full pl-12 pr-12 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                            </div>
+
+                            @if(request('search') || request('category') || request('status'))
+                                <a href="{{ route('admin.produk.index') }}" 
+                                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            @endif
                         </div>
 
-                        <div class="flex gap-2">
-                            <select name="category" onchange="this.form.submit()" 
-                                    class="bg-gray-50 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-600 outline-none focus:ring-2 focus:ring-green-500">
-                                <option value="">Semua Kategori</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
-                                        {{ $cat }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <div x-data="{ openCategory: false }" class="w-full sm:w-auto relative z-20">
+                                <button type="button" @click="openCategory = !openCategory" class="w-full sm:w-auto bg-gray-50 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-600 outline-none focus:ring-2 focus:ring-green-500 transition flex items-center justify-between hover:bg-gray-100">
+                                    <span>{{ request('category') ? request('category') : 'Semua Kategori' }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="openCategory ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <div
+                                    x-show="openCategory"
+                                    x-cloak
+                                    @click.away="openCategory = false"
+                                    x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 -translate-y-2"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-2"
+                                    class="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-[9999] overflow-hidden min-w-[160px]"
+                                >
+                                    <button type="button" @click="openCategory = false; document.querySelector('input[name=category]').value = ''; setTimeout(() => document.querySelector('form').submit(), 100)" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-600 transition {{ !request('category') ? 'bg-green-50 text-green-600' : '' }}">
+                                        Semua Kategori
+                                    </button>
+                                    @foreach($categories as $cat)
+                                        <button type="button" @click="openCategory = false; document.querySelector('input[name=category]').value = '{{ $cat }}'; setTimeout(() => document.querySelector('form').submit(), 100)" class="w-full text-left px-4 py-3 text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-600 transition {{ request('category') == $cat ? 'bg-green-50 text-green-600' : '' }}">
+                                            {{ $cat }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="category" value="{{ request('category') ?? '' }}">
                             
                             @if(request('status'))
                                 <input type="hidden" name="status" value="{{ request('status') }}">
@@ -118,11 +152,11 @@
                             <button type="submit" class="hidden">Cari</button>
 
                             <a href="{{ route('admin.produk.index') }}" 
-                            class="px-6 py-3 font-bold rounded-xl text-sm transition-all duration-300 {{ request('status') != 'terhapus' ? 'bg-green-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
+                            class="w-full sm:w-auto px-4 py-3 font-bold rounded-xl text-sm text-center transition-all duration-300 {{ request('status') != 'terhapus' ? 'bg-green-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
                                 Aktif
                             </a>
                             <a href="{{ route('admin.produk.index', ['status' => 'terhapus']) }}" 
-                            class="px-6 py-3 font-bold rounded-xl text-sm transition-all duration-300 {{ request('status') == 'terhapus' ? 'bg-red-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
+                            class="w-full sm:w-auto px-4 py-3 font-bold rounded-xl text-sm text-center transition-all duration-300 {{ request('status') == 'terhapus' ? 'bg-red-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
                                 Terhapus
                             </a>
                         </div>
@@ -151,11 +185,11 @@
                                 <tr class="hover:bg-gray-50/30 transition">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
+                                            <div class="w-12 h-12 aspect-square shrink-0 bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
                                                 <img src="{{ !empty($product->foto_produk) && is_array($product->foto_produk) 
                                                             ? asset('uploads/produk/' . $product->foto_produk[0]) 
                                                             : 'https://ui-avatars.com/api/?name=' . $product->nama_produk }}" 
-                                                    class="w-12 h-12 rounded-lg object-cover">
+                                                    class="w-full h-full rounded-lg object-cover">
                                             </div>
                                             <div>
                                                 <p class="font-bold text-gray-900 text-sm leading-tight">{{ $product->nama_produk }}</p>
@@ -181,12 +215,12 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="flex justify-center gap-2">
+                                        <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
                                             @if($product->is_delete)
-                                                <form action="{{ route('admin.produk.update', $product->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.produk.update', $product->id) }}" method="POST" class="inline w-full sm:w-auto">
                                                     @csrf @method('PUT')
                                                     <input type="hidden" name="restore" value="1">
-                                                    <button type="submit" class="px-4 py-2 bg-orange-50 text-orange-600 text-xs font-bold rounded-xl hover:bg-orange-600 hover:text-white transition">Pulihkan</button>
+                                                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-orange-50 text-orange-600 text-xs font-bold rounded-xl hover:bg-orange-600 hover:text-white transition">Pulihkan</button>
                                                 </form>
                                             @else
                                                 
@@ -205,13 +239,13 @@
                                                             foto_produk: {{ json_encode($product->foto_produk) }} // WAJIB ADA INI
                                                         }
                                                     "
-                                                    class="px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
+                                                    class="w-full sm:w-auto px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
                                                     Edit
                                                 </button>
 
                                                 <button @click="showDeleteModal = true; deleteUrl = '{{ route('admin.produk.destroy', $product->id) }}'" 
                                                     type="button" 
-                                                    class="px-4 py-2 bg-red-50 text-red-500 text-xs font-bold rounded-xl hover:bg-red-500 hover:text-white hover:shadow-md active:scale-90 transition-all duration-200">
+                                                    class="w-full sm:w-auto px-4 py-2 bg-red-50 text-red-500 text-xs font-bold rounded-xl hover:bg-red-500 hover:text-white hover:shadow-md active:scale-90 transition-all duration-200">
                                                     Hapus
                                                 </button>
                                             @endif
@@ -235,11 +269,11 @@
                         <div class="flex gap-1">
                             @if ($products->onFirstPage())
                                 <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                                    Sebelumnya
+                                    <
                                 </span>
                             @else
                                 <a href="{{ $products->previousPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                                    Sebelumnya
+                                    <
                                 </a>
                             @endif
 
@@ -257,11 +291,11 @@
 
                             @if ($products->hasMorePages())
                                 <a href="{{ $products->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                                    Selanjutnya
+                                    >
                                 </a>
                             @else
                                 <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                                    Selanjutnya
+                                    >
                                 </span>
                             @endif
                         </div>

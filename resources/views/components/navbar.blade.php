@@ -1,17 +1,15 @@
-<nav x-data="{ showLogoutModal: false }" class="bg-white border-b border-gray-100 h-20 px-4 sticky top-0 z-50 shadow-sm flex items-center">
+<nav x-data="{ showLogoutModal: false, mobileMenuOpen: false }" class="bg-white border-b border-gray-100 min-h-[5rem] px-4 sticky top-0 z-50 shadow-sm flex items-center">
     <div class="max-w-7xl mx-auto w-full flex justify-between items-center transition-all duration-300">
         
         <a href="{{ route('landing') }}" class="flex items-center gap-2 group">
-            <img src="{{ asset('img/logo-hydro2.ico') }}" 
-                alt="Logo HydroMart" 
-                class="w-11 h-11 object-contain">
+            <img src="{{ asset('img/logo-hydro2.ico') }}" alt="Logo HydroMart" class="w-11 h-11 object-contain">
             <span class="text-2xl font-bold text-gray-900 tracking-tight">Hydro<span class="text-green-600">Mart</span></span>
         </a>
 
-        <div class="flex items-center gap-8">
-            @if(!Route::is('login', 'register'))
+        <div class="hidden md:flex items-center gap-8">
+            @if(!Route::is('login', 'register', 'password.request', 'password.reset'))
                 @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
-                    <div class="hidden md:flex items-center gap-8 mr-2">
+                    <div class="flex items-center gap-8 mr-2">
                         <a href="{{ route('produk.index') }}" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Produk</a>
                         <a href="{{ route('layanan.index') }}" class="text-gray-600 font-medium hover:text-green-600 transition text-sm">Layanan</a>
                     </div>
@@ -21,8 +19,8 @@
             <div class="flex items-center gap-3">
                 @auth
                     <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                        <button @click="open = !open" class="h-11 flex items-center gap-3 px-3 rounded-xl hover:bg-gray-50 transition duration-300 focus:outline-none">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center overflow-hidden border border-green-200">
+                        <button @click="open = !open" class="h-11 flex items-center gap-3 px-3 rounded-xl hover:bg-gray-50 transition duration-300">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border border-green-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                                 </svg>
@@ -34,54 +32,81 @@
                         </button>
 
                         <div x-show="open" x-cloak x-transition class="absolute right-0 w-52 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2">
-                            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                Profil Saya
-                            </a>
-                            <hr class="border-gray-50 my-1">
-
-                            @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
-                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                    </svg>
-                                    Transaksi Saya
-                                </a>
-                                <hr class="border-gray-50 my-1">
-
-                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                                    </svg>
-                                    Reward
-                                </a>
-                                <hr class="border-gray-50 my-1">
-                            @endif
-
-                            <button @click="showLogoutModal = true; open = false" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition text-left font-bold">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                Keluar
-                            </button>
+                            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">Profil Saya</a>
+                            <button @click="showLogoutModal = true; open = false" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition text-left font-bold">Keluar</button>
                         </div>
                     </div>
                 @else
-                    @if(Route::is('login') || Route::is('register'))
-                        <a href="{{ route('landing') }}" class="text-green-600 font-semibold text-sm hover:text-green-700 transition flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                            </svg>
-                            Kembali ke Beranda
-                        </a>
+                    @if(Route::is('login', 'register', 'password.request', 'password.reset'))
                     @else
-                        <a href="{{ route('login') }}" class="h-11 px-6 border-2 border-green-600 text-green-600 font-bold rounded-xl hover:bg-green-50 transition duration-300 text-sm flex items-center justify-center">Login</a>
-                        <a href="{{ route('register') }}" class="h-11 px-6 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition duration-300 shadow-md shadow-green-100 text-sm flex items-center justify-center">Register</a>
+                        <a href="{{ route('login') }}" class="h-11 px-6 border-2 border-green-600 text-green-600 font-bold rounded-xl hover:bg-green-50 transition text-sm flex items-center">Login</a>
+                        <a href="{{ route('register') }}" class="h-11 px-6 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md shadow-green-100 text-sm flex items-center">Register</a>
                     @endif
                 @endauth
             </div>
+        </div>
+
+        @if(!Route::is('login', 'register', 'password.request', 'password.reset'))
+        <div class="md:hidden flex items-center">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 p-2 focus:outline-none">
+                <svg x-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg x-show="mobileMenuOpen" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        @endif
+    </div>
+
+    <div x-show="mobileMenuOpen" 
+        x-cloak 
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        class="absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-lg md:hidden z-40">
+        
+        <div class="px-4 py-6 space-y-4">
+            @auth
+                {{-- User Sudah Login --}}
+                <div class="flex items-center gap-3 py-2 border-b border-gray-50 pb-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center border border-green-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">{{ auth()->user()->username }}</p>
+                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                    </div>
+                </div>
+
+                @if(auth()->user()->role !== 'admin')
+                    <a href="{{ route('produk.index') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Produk</a>
+                    <a href="{{ route('layanan.index') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Layanan</a>
+                @endif
+
+                <a href="{{ route('profile') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Profil Saya</a>
+                <button @click="showLogoutModal = true; mobileMenuOpen = false" class="w-full text-left text-red-500 font-bold py-2">Keluar</button>
+
+            @else
+                {{-- User Belum Login (Guest) --}}
+                @if(Route::is('login', 'register', 'password.request', 'password.reset'))
+
+                @else
+                    {{-- Di Halaman Biasa: Tampil Produk, Layanan, & Tombol Auth --}}
+                    <a href="{{ route('produk.index') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Produk</a>
+                    <a href="{{ route('layanan.index') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Layanan</a>
+
+                    <hr class="border-gray-50 my-2">
+
+                    <div class="grid grid-cols-1 gap-3 pt-2">
+                        <a href="{{ route('login') }}" class="w-full h-12 flex items-center justify-center border-2 border-green-600 text-green-600 font-bold rounded-xl">Login</a>
+                        <a href="{{ route('register') }}" class="w-full h-12 flex items-center justify-center bg-green-600 text-white font-bold rounded-xl shadow-md">Register</a>
+                    </div>
+                @endif
+            @endauth
         </div>
     </div>
 

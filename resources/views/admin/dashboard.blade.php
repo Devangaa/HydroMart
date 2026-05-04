@@ -24,9 +24,6 @@
                     <h2 class="text-xl font-bold text-gray-900">Menu Admin</h2>
                     <p class="text-sm text-gray-400 mt-1">Kelola operasional harian tokomu di sini.</p>
                 </div>
-                <span class="px-4 py-1.5 bg-white border border-gray-100 rounded-full text-xs text-gray-400 font-semibold shadow-sm">
-                    Panel Kendali v1.0
-                </span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

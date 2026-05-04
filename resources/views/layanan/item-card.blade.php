@@ -2,7 +2,7 @@
    class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden flex flex-col h-full"
    data-aos="fade-up">
     
-    <div class="relative aspect-[4/5] overflow-hidden bg-gray-100">
+    <div class="relative aspect-square overflow-hidden bg-gray-100">
         <img src="{{ (is_array($layanan->foto_layanan) && count($layanan->foto_layanan) > 0) 
             ? asset('uploads/layanan/' . $layanan->foto_layanan[0]) 
             : 'https://ui-avatars.com/api/?name=' . urlencode($layanan->nama_layanan) }}" 

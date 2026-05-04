@@ -3,7 +3,8 @@
 @section('title', 'Data Akun Anda')
 
 @section('content')
-<div class="w-full max-w-4xl mx-auto">
+<div class="w-full">
+    <div class="max-w-4xl mx-auto px-6">
     
     <nav class="flex mb-8" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -92,6 +93,7 @@
                 <p class="text-gray-800 font-bold leading-relaxed ml-1">{{ $user->alamat }}</p>
             </div>
         </div>
+    </div>
     </div>
 </div>
 @endsection

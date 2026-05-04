@@ -2,7 +2,7 @@
    class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden flex flex-col h-full"
    data-aos="fade-up">
     
-    <div class="relative aspect-[4/5] overflow-hidden bg-gray-100">
+    <div class="relative aspect-square overflow-hidden bg-gray-100">
         <img src="{{ (is_array($product->foto_produk) && count($product->foto_produk) > 0) 
             ? asset('uploads/produk/' . $product->foto_produk[0]) 
             : 'https://ui-avatars.com/api/?name=' . urlencode($product->nama_produk) }}" 

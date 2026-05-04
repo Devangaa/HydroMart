@@ -83,24 +83,35 @@
             <div data-aos="fade-up">
                 
                 <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm mb-6">
-                    <form action="{{ route('admin.layanan.index') }}" method="GET" class="flex flex-wrap gap-4 items-center justify-between">
-                        <div class="relative flex-1 min-w-[300px]">
-                            <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama layanan..." 
-                                class="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                    <form action="{{ route('admin.layanan.index') }}" method="GET" class="flex flex-col gap-4 sm:flex-row sm:flex-wrap items-start justify-between">
+                        <div class="flex flex-1 items-center gap-2 min-w-0">
+                            <div class="relative flex-1 min-w-0">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                </span>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama layanan..." 
+                                    class="w-full pl-12 pr-12 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                            </div>
+
+                            @if(request('search') || request('status'))
+                                <a href="{{ route('admin.layanan.index') }}" 
+                                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            @endif
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <button type="submit" class="hidden">Cari</button>
 
                             <a href="{{ route('admin.layanan.index') }}" 
-                            class="px-6 py-3 font-bold rounded-xl text-sm transition-all duration-300 {{ request('status') != 'terhapus' ? 'bg-green-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
+                            class="w-full sm:w-auto px-4 py-3 font-bold rounded-xl text-sm text-center transition-all duration-300 {{ request('status') != 'terhapus' ? 'bg-green-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
                                 Aktif
                             </a>
                             <a href="{{ route('admin.layanan.index', ['status' => 'terhapus']) }}" 
-                            class="px-6 py-3 font-bold rounded-xl text-sm transition-all duration-300 {{ request('status') == 'terhapus' ? 'bg-red-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
+                            class="w-full sm:w-auto px-4 py-3 font-bold rounded-xl text-sm text-center transition-all duration-300 {{ request('status') == 'terhapus' ? 'bg-red-600 text-white' : 'bg-gray-50 text-gray-400 hover:bg-gray-100' }}">
                                 Terhapus
                             </a>
                         </div>
@@ -126,11 +137,11 @@
                                 <tr class="hover:bg-gray-50/30 transition">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
+                                            <div class="w-12 h-12 aspect-square shrink-0 bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
                                                 <img src="{{ !empty($item->foto_layanan) && is_array($item->foto_layanan) 
                                                             ? asset('uploads/layanan/' . $item->foto_layanan[0]) 
                                                             : 'https://ui-avatars.com/api/?name=' . $item->nama_layanan }}" 
-                                                    class="w-12 h-12 rounded-lg object-cover">
+                                                    class="w-full h-full rounded-lg object-cover">
                                             </div>
                                             <div>
                                                 <p class="font-bold text-gray-900 text-sm leading-tight">{{ $item->nama_layanan }}</p>
@@ -149,12 +160,12 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="flex justify-center gap-2">
+                                        <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
                                             @if($item->is_delete)
-                                                <form action="{{ route('admin.layanan.update', $item->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.layanan.update', $item->id) }}" method="POST" class="inline w-full sm:w-auto">
                                                     @csrf @method('PUT')
                                                     <input type="hidden" name="restore" value="1">
-                                                    <button type="submit" class="px-4 py-2 bg-orange-50 text-orange-600 text-xs font-bold rounded-xl hover:bg-orange-600 hover:text-white transition">Pulihkan</button>
+                                                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-orange-50 text-orange-600 text-xs font-bold rounded-xl hover:bg-orange-600 hover:text-white transition">Pulihkan</button>
                                                 </form>
                                             @else
                                                 
@@ -169,13 +180,13 @@
                                                             foto_layanan: {{ json_encode($item->foto_layanan) }}
                                                         }
                                                     " 
-                                                    class="px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
+                                                    class="w-full sm:w-auto px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
                                                     Edit
                                                 </button>
 
                                                 <button @click="showDeleteModal = true; deleteUrl = '{{ route('admin.layanan.destroy', $item->id) }}'" 
                                                     type="button" 
-                                                    class="px-4 py-2 bg-red-50 text-red-500 text-xs font-bold rounded-xl hover:bg-red-500 hover:text-white hover:shadow-md active:scale-90 transition-all duration-200">
+                                                    class="w-full sm:w-auto px-4 py-2 bg-red-50 text-red-500 text-xs font-bold rounded-xl hover:bg-red-500 hover:text-white hover:shadow-md active:scale-90 transition-all duration-200">
                                                     Hapus
                                                 </button>
                                             @endif
@@ -199,11 +210,11 @@
                         <div class="flex gap-1">
                             @if ($layanan->onFirstPage())
                                 <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                                    Sebelumnya
+                                    <
                                 </span>
                             @else
                                 <a href="{{ $layanan->previousPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                                    Sebelumnya
+                                    <
                                 </a>
                             @endif
 
@@ -221,11 +232,11 @@
 
                             @if ($layanan->hasMorePages())
                                 <a href="{{ $layanan->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                                    Selanjutnya
+                                    >
                                 </a>
                             @else
                                 <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                                    Selanjutnya
+                                    >
                                 </span>
                             @endif
                         </div>

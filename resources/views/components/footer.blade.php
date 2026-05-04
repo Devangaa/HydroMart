@@ -24,10 +24,9 @@
             <div>
                 <h4 class="text-gray-900 font-bold mb-6 text-base">Menu</h4>
                 <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="#" class="hover:text-green-600 transition">Beranda</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Tentang</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Fitur</a></li>
-                    <li><a href="#" class="hover:text-green-600 transition">Produk</a></li>
+                    <li><a href="{{ route('landing') }}" class="hover:text-green-600 transition">Beranda</a></li>
+                    <li><a href="{{ route('produk.index') }}" class="hover:text-green-600 transition">Produk</a></li>
+                    <li><a href="{{ route('layanan.index') }}" class="hover:text-green-600 transition">Layanan</a></li>
                 </ul>
             </div>
             @endif

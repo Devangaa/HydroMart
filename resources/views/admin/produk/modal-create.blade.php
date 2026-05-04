@@ -124,13 +124,46 @@
                         <input type="text" name="nama_produk" value="{{ old('nama_produk') }}"placeholder="cth. Selada Romaine" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-2"
+                        x-data="{
+                            openKategori: false,
+                            selectedKategori: '{{ old('kategori', 'Sayuran') }}',
+                            kategoriList: ['Sayuran', 'Alat', 'Nutrisi', 'Bibit']
+                        }">
                         <label class="text-sm font-bold text-gray-700 ml-1">Kategori <span class="text-red-500">*</span></label>
-                        <select name="kategori" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm cursor-pointer">
-                            @foreach(['Sayuran', 'Alat', 'Nutrisi', 'Bibit'] as $cat)
-                                <option value="{{ $cat }}" {{ old('kategori') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <button type="button"
+                                @click="openKategori = !openKategori"
+                                class="w-full px-5 py-4 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm flex items-center justify-between gap-3 hover:bg-gray-100 font-medium text-gray-700">
+                                <span x-text="selectedKategori"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200 shrink-0" :class="openKategori ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div
+                                x-show="openKategori"
+                                x-cloak
+                                @click.away="openKategori = false"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-2"
+                                class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-[9999]"
+                            >
+                                <template x-for="cat in kategoriList" :key="cat">
+                                    <button type="button"
+                                        @click="selectedKategori = cat; openKategori = false"
+                                        class="w-full text-left px-5 py-3 text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-600 transition"
+                                        :class="selectedKategori === cat ? 'bg-green-50 text-green-600' : ''"
+                                        x-text="cat">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        <input type="hidden" name="kategori" :value="selectedKategori" required>
                     </div>
 
                     <div class="space-y-2">
@@ -143,13 +176,46 @@
                         <input type="number" name="jumlah_stok" value="{{ old('jumlah_stok') }}" placeholder="cth. 50" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-2"
+                        x-data="{
+                            openUnit: false,
+                            selectedUnit: '{{ old('unit', 'Ikat') }}',
+                            unitList: ['Ikat', 'Set', 'Pcs']
+                        }">
                         <label class="text-sm font-bold text-gray-700 ml-1">Unit <span class="text-red-500">*</span></label>
-                        <select name="unit" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm cursor-pointer">
-                            @foreach(['Ikat', 'Set', 'Pcs'] as $unit)
-                                <option value="{{ $unit }}" {{ old('unit') == $unit ? 'selected' : '' }}>{{ $unit }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <button type="button"
+                                @click="openUnit = !openUnit"
+                                class="w-full px-5 py-4 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm flex items-center justify-between gap-3 hover:bg-gray-100 font-medium text-gray-700">
+                                <span x-text="selectedUnit"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200 shrink-0" :class="openUnit ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div
+                                x-show="openUnit"
+                                x-cloak
+                                @click.away="openUnit = false"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-2"
+                                class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-[9999]"
+                            >
+                                <template x-for="unit in unitList" :key="unit">
+                                    <button type="button"
+                                        @click="selectedUnit = unit; openUnit = false"
+                                        class="w-full text-left px-5 py-3 text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-600 transition"
+                                        :class="selectedUnit === unit ? 'bg-green-50 text-green-600' : ''"
+                                        x-text="unit">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        <input type="hidden" name="unit" :value="selectedUnit" required>
                     </div>
 
                     <div class="space-y-2">
