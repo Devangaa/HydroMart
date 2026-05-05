@@ -41,6 +41,9 @@ class ProfileController extends Controller
             'email'        => 'required|email|max:255|unique:akun,email,' . $oldUsername . ',username',
             'no_hp'        => 'required|numeric|digits_between:10,15|unique:akun,no_hp,' . $oldUsername . ',username',
             'alamat'       => 'required|string',
+            'provinsi'     => 'required|integer|exists:provinces,id',
+            'kota'         => 'required|integer|exists:cities,id',
+            'kecamatan'    => 'required|integer|exists:kecamatans,id',
         ], [
             'username.alpha_dash' => 'Username hanya boleh berisi huruf, angka, tanda hubung, dan garis bawah',
             'username.min'        => 'Username minimal harus 5 karakter.',
@@ -50,6 +53,9 @@ class ProfileController extends Controller
             'no_hp.unique'      => 'Nomor sudah terdaftar, gunakan nomor lain.',
             'no_hp.numeric'     => 'Masukkan nomor telepon yang valid',
             'no_hp.digits_between' => 'Masukkan nomor telepon yang valid',
+            'provinsi.exists'   => 'Provinsi tidak valid, pilih dari daftar.',
+            'kota.exists'       => 'Kota tidak valid, pilih dari daftar.',
+            'kecamatan.exists'  => 'Kecamatan tidak valid, pilih dari daftar.',
         ]);
 
         User::where('username', $oldUsername)->update([
@@ -58,6 +64,7 @@ class ProfileController extends Controller
             'email'        => $request->email,
             'no_hp'        => $request->no_hp,
             'alamat'       => $request->alamat,
+            'kecamatan_id' => $request->kecamatan,
         ]);
 
         $newUser = User::where('username', $request->username)->first();

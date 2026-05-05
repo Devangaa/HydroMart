@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Api\WilayahController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LayananController as PublicLayananController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
+use App\Models\City;
+use App\Models\Kecamatan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -74,4 +77,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});
+
+// API Routes untuk Cascading Dropdown Wilayah
+Route::get('/api/provinces', [WilayahController::class, 'getProvinces']);
+Route::get('/api/cities/{provinceId}', [WilayahController::class, 'getCitiesByProvince']);
+Route::get('/api/kecamatan/{cityId}', [WilayahController::class, 'getKecamatanByCity']);
+
+Route::get('/cities/{province_id}', function ($province_id) {
+    return City::where('province_id', $province_id)->get();
+});
+
+Route::get('/kecamatans/{city_id}', function ($city_id) {
+    return Kecamatan::where('city_id', $city_id)->get();
 });

@@ -28,6 +28,8 @@
 
     <main class="flex-grow flex items-center justify-center py-10 ">
         @yield('content')
+
+        @stack('scripts')
     </main>
 
     <x-footer />

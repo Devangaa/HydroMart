@@ -102,8 +102,175 @@
                     @error('no_hp') <p class="text-red-500 text-xs mt-2 ml-1">{{ $message }}</p> @enderror
                 </div>
 
+                {{-- Provinsi, Kota, Kecamatan - Full row with 2 columns --}}
+                <div x-data="cascadingDropdown()" x-init="init()" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {{-- Provinsi Custom Dropdown --}}
+                    <div class="relative" x-data="{ open: false }" @keydown.escape="open = false">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Provinsi</label>
+                        <input type="hidden" name="provinsi" :value="selectedProvince">
+
+                        <button type="button"
+                            @click="open = !open"
+                            class="w-full bg-gray-50 border {{ $errors->has('provinsi') ? 'border-red-500' : 'border-gray-100' }} p-4 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none font-bold text-gray-700 transition-all flex items-center justify-between gap-2"
+                            :class="open ? 'ring-2 ring-green-500 border-green-300' : 'hover:border-gray-300'"
+                        >
+                            <span :class="selectedProvinceName ? 'text-gray-800' : 'text-gray-400'"
+                                  x-text="selectedProvinceName || 'Pilih Provinsi'"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200 shrink-0" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="open"
+                             x-cloak
+                             @click.away="open = false"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 -translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-2"
+                             class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
+                            {{-- Search --}}
+                            <div class="px-3 pt-3 pb-2 border-b border-gray-50">
+                                <input type="text" x-model="provinceSearch" placeholder="Cari provinsi..."
+                                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-100 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-300">
+                            </div>
+                            <div class="max-h-52 overflow-y-auto">
+                                <template x-if="filteredProvinces.length === 0">
+                                    <p class="px-4 py-3 text-sm text-gray-400 text-center">Tidak ditemukan</p>
+                                </template>
+                                <template x-for="prov in filteredProvinces" :key="prov.id">
+                                    <button type="button"
+                                        @click="selectProvince(prov); open = false"
+                                        class="w-full text-left px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-green-50 hover:text-green-600 transition"
+                                        :class="selectedProvince == prov.id ? 'bg-green-50 text-green-600' : ''"
+                                        x-text="prov.name">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        @error('provinsi') <p class="text-red-500 text-xs mt-2 ml-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Kota / Kabupaten Custom Dropdown --}}
+                    <div class="relative" x-data="{ open: false }" @keydown.escape="open = false">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Kota / Kabupaten</label>
+                        <input type="hidden" name="kota" :value="selectedCity">
+
+                        <button type="button"
+                            @click="if (selectedProvince && !loadingCities) open = !open"
+                            class="w-full bg-gray-50 border {{ $errors->has('kota') ? 'border-red-500' : 'border-gray-100' }} p-4 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none font-bold text-gray-700 transition-all flex items-center justify-between gap-2"
+                            :class="{
+                                'ring-2 ring-green-500 border-green-300': open,
+                                'hover:border-gray-300': selectedProvince && !loadingCities,
+                                'opacity-50 cursor-not-allowed': !selectedProvince || loadingCities
+                            }"
+                        >
+                            <span class="flex items-center gap-2" :class="selectedCityName ? 'text-gray-800' : 'text-gray-400'">
+                                <svg x-show="loadingCities" class="animate-spin h-4 w-4 text-green-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                <span x-text="loadingCities ? 'Memuat...' : (selectedCityName || 'Pilih Kota / Kabupaten')"></span>
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200 shrink-0" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="open"
+                             x-cloak
+                             @click.away="open = false"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 -translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-2"
+                             class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
+                            <div class="px-3 pt-3 pb-2 border-b border-gray-50">
+                                <input type="text" x-model="citySearch" placeholder="Cari kota..."
+                                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-100 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-300">
+                            </div>
+                            <div class="max-h-52 overflow-y-auto">
+                                <template x-if="filteredCities.length === 0">
+                                    <p class="px-4 py-3 text-sm text-gray-400 text-center">Tidak ditemukan</p>
+                                </template>
+                                <template x-for="city in filteredCities" :key="city.id">
+                                    <button type="button"
+                                        @click="selectCity(city); open = false"
+                                        class="w-full text-left px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-green-50 hover:text-green-600 transition"
+                                        :class="selectedCity == city.id ? 'bg-green-50 text-green-600' : ''"
+                                        x-text="city.name">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        @error('kota') <p class="text-red-500 text-xs mt-2 ml-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Kecamatan Custom Dropdown --}}
+                    <div class="relative" x-data="{ open: false }" @keydown.escape="open = false">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Kecamatan</label>
+                        <input type="hidden" name="kecamatan" :value="selectedKecamatan">
+
+                        <button type="button"
+                            @click="if (selectedCity && !loadingKecamatan) open = !open"
+                            class="w-full bg-gray-50 border {{ $errors->has('kecamatan') ? 'border-red-500' : 'border-gray-100' }} p-4 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none font-bold text-gray-700 transition-all flex items-center justify-between gap-2"
+                            :class="{
+                                'ring-2 ring-green-500 border-green-300': open,
+                                'hover:border-gray-300': selectedCity && !loadingKecamatan,
+                                'opacity-50 cursor-not-allowed': !selectedCity || loadingKecamatan
+                            }"
+                        >
+                            <span class="flex items-center gap-2" :class="selectedKecamatanName ? 'text-gray-800' : 'text-gray-400'">
+                                <svg x-show="loadingKecamatan" class="animate-spin h-4 w-4 text-green-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                <span x-text="loadingKecamatan ? 'Memuat...' : (selectedKecamatanName || 'Pilih Kecamatan')"></span>
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200 shrink-0" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="open"
+                             x-cloak
+                             @click.away="open = false"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 -translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-2"
+                             class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
+                            <div class="px-3 pt-3 pb-2 border-b border-gray-50">
+                                <input type="text" x-model="kecamatanSearch" placeholder="Cari kecamatan..."
+                                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-100 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none placeholder-gray-300">
+                            </div>
+                            <div class="max-h-52 overflow-y-auto">
+                                <template x-if="filteredKecamatan.length === 0">
+                                    <p class="px-4 py-3 text-sm text-gray-400 text-center">Tidak ditemukan</p>
+                                </template>
+                                <template x-for="kec in filteredKecamatan" :key="kec.id">
+                                    <button type="button"
+                                        @click="selectKecamatan(kec); open = false"
+                                        class="w-full text-left px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-green-50 hover:text-green-600 transition"
+                                        :class="selectedKecamatan == kec.id ? 'bg-green-50 text-green-600' : ''"
+                                        x-text="kec.name">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        @error('kecamatan') <p class="text-red-500 text-xs mt-2 ml-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
                 <div class="md:col-span-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Detail Alamat</label>
                     <textarea name="alamat" rows="3" 
                             class="w-full bg-gray-50 border {{ $errors->has('alamat') ? 'border-red-500' : 'border-gray-100' }} p-4 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none font-bold text-gray-700 leading-relaxed transition-all">{{ old('alamat', $user->alamat) }}</textarea>
                     @error('alamat') <p class="text-red-500 text-xs mt-2 ml-1">{{ $message }}</p> @enderror
@@ -199,3 +366,160 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function cascadingDropdown() {
+        const basePath = "{{ rtrim((string)parse_url(url('/'), PHP_URL_PATH), '/') }}";
+
+        return {
+            provinces: [],
+            cities: [],
+            kecamatan: [],
+
+            selectedProvince: '{{ old('provinsi', $user->kecamatan->city->province_id ?? '') }}',
+            selectedCity: '{{ old('kota', $user->kecamatan->city_id ?? '') }}',
+            selectedKecamatan: '{{ old('kecamatan', $user->kecamatan_id ?? '') }}',
+
+            selectedProvinceName: '',
+            selectedCityName: '',
+            selectedKecamatanName: '',
+
+            provinceSearch: '',
+            citySearch: '',
+            kecamatanSearch: '',
+
+            loadingCities: false,
+            loadingKecamatan: false,
+
+            get filteredProvinces() {
+                if (!this.provinceSearch) return this.provinces;
+                const q = this.provinceSearch.toLowerCase();
+                return this.provinces.filter(p => p.name.toLowerCase().includes(q));
+            },
+
+            get filteredCities() {
+                if (!this.citySearch) return this.cities;
+                const q = this.citySearch.toLowerCase();
+                return this.cities.filter(c => c.name.toLowerCase().includes(q));
+            },
+
+            get filteredKecamatan() {
+                if (!this.kecamatanSearch) return this.kecamatan;
+                const q = this.kecamatanSearch.toLowerCase();
+                return this.kecamatan.filter(k => k.name.toLowerCase().includes(q));
+            },
+
+            selectProvince(prov) {
+                this.selectedProvince = prov.id;
+                this.selectedProvinceName = prov.name;
+                this.provinceSearch = '';
+                this.selectedCity = '';
+                this.selectedCityName = '';
+                this.selectedKecamatan = '';
+                this.selectedKecamatanName = '';
+                this.cities = [];
+                this.kecamatan = [];
+                this.onProvinceChange();
+            },
+
+            selectCity(city) {
+                this.selectedCity = city.id;
+                this.selectedCityName = city.name;
+                this.citySearch = '';
+                this.selectedKecamatan = '';
+                this.selectedKecamatanName = '';
+                this.kecamatan = [];
+                this.onCityChange();
+            },
+
+            selectKecamatan(kec) {
+                this.selectedKecamatan = kec.id;
+                this.selectedKecamatanName = kec.name;
+                this.kecamatanSearch = '';
+            },
+
+            async init() {
+                await this.fetchProvinces();
+
+                // Restore old values (validation fail)
+                if (this.selectedProvince) {
+                    await this.onProvinceChange();
+                    const prov = this.provinces.find(p => p.id == this.selectedProvince);
+                    if (prov) this.selectedProvinceName = prov.name;
+                }
+            },
+
+            async fetchProvinces() {
+                try {
+                    const response = await fetch(`${basePath}/api/provinces`);
+                    this.provinces = await response.json();
+                } catch (error) {
+                    console.error('Error fetching provinces:', error);
+                }
+            },
+
+            async onProvinceChange() {
+                if (!this.selectedProvince) {
+                    this.cities = [];
+                    this.kecamatan = [];
+                    this.selectedCity = '';
+                    this.selectedCityName = '';
+                    this.selectedKecamatan = '';
+                    this.selectedKecamatanName = '';
+                    return;
+                }
+
+                this.loadingCities = true;
+                this.cities = [];
+                this.kecamatan = [];
+
+                try {
+                    const response = await fetch(`${basePath}/api/cities/${this.selectedProvince}`);
+                    this.cities = await response.json();
+
+                    // Restore old city value
+                    if (this.selectedCity) {
+                        const city = this.cities.find(c => c.id == this.selectedCity);
+                        if (city) {
+                            this.selectedCityName = city.name;
+                            await this.onCityChange();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching cities:', error);
+                } finally {
+                    this.loadingCities = false;
+                }
+            },
+
+            async onCityChange() {
+                if (!this.selectedCity) {
+                    this.kecamatan = [];
+                    this.selectedKecamatan = '';
+                    this.selectedKecamatanName = '';
+                    return;
+                }
+
+                this.loadingKecamatan = true;
+                this.kecamatan = [];
+
+                try {
+                    const response = await fetch(`${basePath}/api/kecamatan/${this.selectedCity}`);
+                    this.kecamatan = await response.json();
+
+                    // Restore old kecamatan value
+                    if (this.selectedKecamatan) {
+                        const kec = this.kecamatan.find(k => k.id == this.selectedKecamatan);
+                        if (kec) this.selectedKecamatanName = kec.name;
+                    }
+                } catch (error) {
+                    console.error('Error fetching kecamatan:', error);
+                } finally {
+                    this.loadingKecamatan = false;
+                }
+            },
+        }
+    }
+</script>
+@endpush

@@ -86,10 +86,23 @@
                 <p class="text-gray-800 font-bold ml-1">{{ $user->created_at->format('d F Y') }}</p>
             </div>
 
-            <div class="hidden md:block"></div>
+            <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Provinsi</label>
+                <p class="text-gray-800 font-bold ml-1">{{ $user->kecamatan->city->province->name ?? '-' }}</p>
+            </div>
+
+            <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Kota / Kabupaten</label>
+                <p class="text-gray-800 font-bold ml-1">{{ $user->kecamatan->city->name ?? '-' }}</p>
+            </div>
+
+            <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Kecamatan</label>
+                <p class="text-gray-800 font-bold ml-1">{{ $user->kecamatan->name ?? '-' }}</p>
+            </div>
 
             <div class="md:col-span-2 bg-gray-50/50 p-6 rounded-2xl border border-gray-100/50">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat</label>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Detail Alamat</label>
                 <p class="text-gray-800 font-bold leading-relaxed ml-1">{{ $user->alamat }}</p>
             </div>
         </div>
