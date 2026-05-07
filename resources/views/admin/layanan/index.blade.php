@@ -173,12 +173,12 @@
                                                     @click="
                                                         showEditModal = true; 
                                                         editUrl = '{{ route('admin.layanan.update', $item->id) }}';
-                                                        editData = {
-                                                            nama_layanan: '{{ addslashes($item->nama_layanan) }}',
-                                                            harga: '{{ $item->harga }}',
-                                                            deskripsi: '{{ addslashes($item->deskripsi ?? '') }}',
-                                                            foto_layanan: {{ json_encode($item->foto_layanan) }}
-                                                        }
+                                                        editData = {{ json_encode([
+                                                            'nama_layanan' => $item->nama_layanan,
+                                                            'harga'        => $item->harga,
+                                                            'deskripsi'    => $item->deskripsi ?? '',
+                                                            'foto_layanan' => $item->foto_layanan ?? [],
+                                                        ]) }}
                                                     " 
                                                     class="w-full sm:w-auto px-4 py-2 bg-green-50 text-green-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white transition">
                                                     Edit

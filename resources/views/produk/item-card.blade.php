@@ -1,5 +1,5 @@
 <a href="{{ route('produk.show', $product->slug) }}" 
-   class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden flex flex-col h-full"
+   class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition duration-300 overflow-hidden flex flex-col h-full {{ $product->jumlah_stok <= 0 ? 'opacity-60 grayscale' : '' }}"
    data-aos="fade-up">
     
     <div class="relative aspect-square overflow-hidden bg-gray-100">
@@ -9,10 +9,15 @@
             alt="{{ $product->nama_produk }}"
             class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
         
-        <div class="absolute top-4 left-4">
+        <div class="absolute top-4 left-4 flex gap-2">
             <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-green-700 text-[10px] font-black rounded-lg uppercase tracking-wider shadow-sm">
                 {{ $product->kategori }}
             </span>
+            @if($product->jumlah_stok <= 0)
+                <span class="px-3 py-1 bg-red-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-sm">
+                    Habis
+                </span>
+            @endif
         </div>
     </div>
 

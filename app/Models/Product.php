@@ -21,9 +21,9 @@ class Product extends Model
         'kategori',
         'berat',
         'unit',
+        'total_terjual',
         'is_delete',
     ];
-
 
     protected $casts = [
         'harga' => 'decimal:2',
@@ -44,5 +44,4 @@ class Product extends Model
     {
         return str_replace(' ', '-', strtolower($this->nama_produk));
     }
-
 }

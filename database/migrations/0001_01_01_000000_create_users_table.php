@@ -12,13 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('akun', function (Blueprint $app) {
-            $app->string('username')->primary();
+            $app->id();
+            $app->string('username')->unique();
             $app->string('password');
             $app->string('role');
             $app->string('nama_lengkap');
             $app->string('email')->unique();
             $app->string('no_hp')->unique();
             $app->text('alamat');
+            $app->foreignId('kecamatan_id')->constrained('kecamatans');
+            $app->integer('poin_reward')->default(0);
             $app->timestamp('tanggal_bergabung');
             $app->timestamps();
         });

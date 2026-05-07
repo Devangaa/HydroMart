@@ -200,13 +200,13 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="harga" :value="Math.floor(editData.harga)" @input="editData.harga = $event.target.value" step="1" required 
+                        <input type="number" name="harga" min="0" :value="Math.floor(editData.harga)" @input="editData.harga = $event.target.value" step="1" required 
                             class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm @error('harga') ring-2 ring-red-500 @enderror">
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Stok <span class="text-red-500">*</span></label>
-                        <input type="number" name="jumlah_stok" x-model="editData.jumlah_stok" required 
+                        <input type="number" name="jumlah_stok" min="0" x-model="editData.jumlah_stok" required 
                             class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm @error('jumlah_stok') ring-2 ring-red-500 @enderror">
                     </div>
 
@@ -214,7 +214,7 @@
                         x-data="{
                             openUnit: false,
                             selectedUnit: '',
-                            unitList: ['Ikat', 'Set', 'Pcs']
+                            unitList: ['Ikat', 'Pcs']
                         }"
                         x-init="
                             selectedUnit = editData.unit || 'Ikat';
@@ -259,7 +259,7 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Berat (gram)</label>
-                        <input type="number" name="berat" x-model="editData.berat" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                        <input type="number" name="berat" min="0" x-model="editData.berat" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
                     <div class="md:col-span-2 space-y-2">

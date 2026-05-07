@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             WilayahIndonesiaSeeder::class,
             UserSeeder::class,
             ProductSeeder::class,
+            LayananSeeder::class,
         ]);
 
         User::factory()->create([

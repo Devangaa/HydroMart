@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('layanan', function (Blueprint $table) {
+        Schema::create('detail_transaksi_layanans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_layanan');
-            $table->string('slug')->unique()->nullable();
-            $table->text('deskripsi')->nullable();
-            $table->integer('harga');
-            $table->text('foto_layanan')->nullable();
-            $table->boolean('is_delete')->default(0);
+            $table->foreignId('transaksi_id')->constrained('transaksis')->onDelete('cascade');
+            $table->foreignId('layanan_id')->constrained('layanan');
+            $table->decimal('total_harga', 12, 2);
+            $table->text('catatan')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('layanans');
+        Schema::dropIfExists('detail_transaksi_layanans');
     }
 };

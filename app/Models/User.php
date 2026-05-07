@@ -15,11 +15,9 @@ class User extends Authenticatable
 
     protected $table = 'akun';
 
-    protected $primaryKey = 'username';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
-
-    protected $keyType = 'string';
 
     protected $fillable = [
         'username',
@@ -30,6 +28,7 @@ class User extends Authenticatable
         'no_hp',
         'alamat',
         'kecamatan_id',
+        'poin_reward',
         'tanggal_bergabung',
     ];
 

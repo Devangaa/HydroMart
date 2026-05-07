@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -13,7 +12,7 @@ class ProductController extends Controller
         $search = $request->input('search');
         $selectedCategory = $request->input('category');
 
-        $query = Product::query()->where('is_delete', 0)->latest();
+        $query = Product::query()->where('is_delete', 0)->orderByRaw('jumlah_stok = 0 ASC')->latest();
 
         if ($search) {
             $query->where('nama_produk', 'like', "%{$search}%");
@@ -34,9 +33,9 @@ class ProductController extends Controller
     {
         // Cari product yang slug-nya cocok
         $product = Product::where('slug', $slug)->where('is_delete', 0)->firstOrFail();
-        
-        abort_if(!$product, 404);
-        
+
+        abort_if(! $product, 404);
+
         $relatedProducts = Product::where('kategori', $product->kategori)
             ->where('id', '!=', $product->id)
             ->where('is_delete', 0)

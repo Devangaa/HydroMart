@@ -18,7 +18,7 @@ class LayananController extends Controller
         $query = Layanan::query();
 
         if ($request->search) {
-            $query->where('nama_layanan', 'like', '%' . $request->search . '%');
+            $query->where('nama_layanan', 'like', '%'.$request->search.'%');
         }
 
         if ($status == 'terhapus') {
@@ -28,7 +28,7 @@ class LayananController extends Controller
         }
 
         $layanan = $query->latest()->paginate(10);
-        
+
         $stats = [
             'total' => Layanan::count(),
             'aktif' => Layanan::where('is_delete', 0)->count(),
@@ -42,16 +42,17 @@ class LayananController extends Controller
     {
         $request->validate([
             'nama_layanan' => 'required|string|max:255',
-            'harga' => 'required|numeric',
+            'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
-            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048'
+            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048',
         ], [
             'nama_layanan.required' => 'Nama layanan wajib diisi.',
-            'harga.required'       => 'Harga layanan harus diisi.',
-            'harga.numeric'        => 'Harga harus berupa angka.',
-            'foto_layanan.*.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_layanan.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_layanan.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
+            'harga.required' => 'Harga layanan harus diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'harga.min' => 'Harga tidak boleh kurang dari 0.',
+            'foto_layanan.*.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_layanan.*.mimes' => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_layanan.*.max' => 'Ukuran gambar maksimal adalah 2MB.',
         ]);
 
         $data = $request->all();
@@ -63,7 +64,7 @@ class LayananController extends Controller
 
             foreach ($files as $file) {
                 // Rename file agar unik & aman: [Timestamp]-[Random].ext
-                $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                $filename = time().'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
                 $file->move(public_path('uploads/layanan'), $filename);
                 $filenames[] = $filename;
             }
@@ -72,31 +73,33 @@ class LayananController extends Controller
         $data['foto_layanan'] = $filenames;
 
         Layanan::create($data);
-        
+
         return redirect()->back()->with('success', 'Layanan berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
     {
         $layanan = Layanan::findOrFail($id);
-        
+
         if ($request->has('restore')) {
             $layanan->update(['is_delete' => 0]);
+
             return redirect()->back()->with('success', 'Layanan dipulihkan!');
         }
 
         $validator = Validator::make($request->all(), [
             'nama_layanan' => 'required|string|max:255',
-            'harga' => 'required|numeric',
+            'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable',
-            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048'
+            'foto_layanan.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048',
         ], [
             'nama_layanan.required' => 'Nama layanan wajib diisi.',
-            'harga.required'       => 'Harga layanan harus diisi.',
-            'harga.numeric'        => 'Harga harus berupa angka.',
-            'foto_layanan.*.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_layanan.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_layanan.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
+            'harga.required' => 'Harga layanan harus diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'harga.min' => 'Harga tidak boleh kurang dari 0.',
+            'foto_layanan.*.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_layanan.*.mimes' => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_layanan.*.max' => 'Ukuran gambar maksimal adalah 2MB.',
         ]);
 
         if ($validator->fails()) {
@@ -109,10 +112,9 @@ class LayananController extends Controller
         $data = $request->all();
         $currentImages = $layanan->foto_layanan ?? [];
 
-
         if ($request->has('remove_images')) {
             foreach ($request->remove_images as $imageName) {
-                $filePath = public_path('uploads/layanan/' . $imageName);
+                $filePath = public_path('uploads/layanan/'.$imageName);
                 if (File::exists($filePath)) {
                     File::delete($filePath);
                 }
@@ -122,10 +124,10 @@ class LayananController extends Controller
 
         if ($request->hasFile('foto_layanan')) {
             $files = $request->file('foto_layanan');
-            
+
             foreach ($files as $file) {
-                if (count($currentImages) < 4) { 
-                    $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                if (count($currentImages) < 4) {
+                    $filename = time().'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
                     $file->move(public_path('uploads/layanan'), $filename);
                     $currentImages[] = $filename;
                 }
@@ -135,18 +137,19 @@ class LayananController extends Controller
         $data['foto_layanan'] = $currentImages;
         $layanan->update([
             'nama_layanan' => $request->nama_layanan,
-            'harga'       => $request->harga,
-            'deskripsi'   => $request->deskripsi,
+            'harga' => $request->harga,
+            'deskripsi' => $request->deskripsi,
             'foto_layanan' => $currentImages,
         ]);
-        
+
         return redirect()->back()->with('success', 'Layanan diperbarui!');
     }
 
     public function destroy($id)
     {
         $layanan = Layanan::findOrFail($id);
-        $layanan->update(['is_delete' => 1]); 
+        $layanan->update(['is_delete' => 1]);
+
         return redirect()->back()->with('success', 'Layanan berhasil dihapus!');
     }
 }

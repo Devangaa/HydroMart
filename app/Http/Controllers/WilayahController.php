@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Kecamatan;
 use App\Models\Province;
+use Illuminate\Routing\Controller;
 
 class WilayahController extends Controller
 {

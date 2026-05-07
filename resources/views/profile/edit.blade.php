@@ -452,7 +452,7 @@
 
             async fetchProvinces() {
                 try {
-                    const response = await fetch(`${basePath}/api/provinces`);
+                    const response = await fetch(`${basePath}/provinces`);
                     this.provinces = await response.json();
                 } catch (error) {
                     console.error('Error fetching provinces:', error);
@@ -475,7 +475,7 @@
                 this.kecamatan = [];
 
                 try {
-                    const response = await fetch(`${basePath}/api/cities/${this.selectedProvince}`);
+                    const response = await fetch(`${basePath}/cities/${this.selectedProvince}`);
                     this.cities = await response.json();
 
                     // Restore old city value
@@ -505,7 +505,7 @@
                 this.kecamatan = [];
 
                 try {
-                    const response = await fetch(`${basePath}/api/kecamatan/${this.selectedCity}`);
+                    const response = await fetch(`${basePath}/kecamatan/${this.selectedCity}`);
                     this.kecamatan = await response.json();
 
                     // Restore old kecamatan value

@@ -98,12 +98,17 @@
                 <div>
                     <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Deskripsi Produk</h3>
                     <p class="text-gray-600 leading-relaxed font-medium">
-                        {{-- Menggunakan nl2br agar enter di admin terbaca --}}
                         {!! $product->deskripsi ? nl2br(e($product->deskripsi)) : 'Sayuran segar berkualitas tinggi, dipanen langsung dari Greenhouse Jember.' !!}
                     </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
+
+                    @if($product->jumlah_stok <= 0)
+                        <button disabled class="flex-1 bg-gray-100 text-gray-400 font-black py-3 px-6 rounded-xl cursor-not-allowed text-sm">
+                            Stok Habis
+                        </button>
+                    @else
                     <div class="flex items-center bg-gray-100 rounded-xl p-1 w-fit border border-gray-200">
                         <button type="button" 
                                 @click="if(quantity > 1) quantity--" 
@@ -123,22 +128,24 @@
                             +
                         </button>
                     </div>
-                    @auth
-                        <button class="flex-1 bg-green-100 text-green-700 font-black py-3 px-6 rounded-xl hover:bg-green-200 transition-all text-sm">
-                            + Keranjang
-                        </button>
-                        <button class="flex-1 bg-green-600 text-white font-black py-3 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition-all text-sm">
-                            Beli Sekarang
-                        </button>
-                    @else
-                        <a href="{{ route('login') }}" class="flex-1 flex items-center justify-center bg-green-100 text-green-700 font-black py-3 px-6 rounded-xl hover:bg-green-200 transition-all text-sm">
-                            + Keranjang
-                        </a>
+                        @auth
+                            <button class="flex-1 bg-green-100 text-green-700 font-black py-3 px-6 rounded-xl hover:bg-green-200 transition-all text-sm">
+                                + Keranjang
+                            </button>
+                            <a :href="'{{ route('checkout.produk.index') }}?product_id={{ $product->id }}&qty=' + quantity"
+                               class="flex-1 flex items-center justify-center bg-green-600 text-white font-black py-3 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition-all text-sm">
+                                Beli Sekarang
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="flex-1 flex items-center justify-center bg-green-100 text-green-700 font-black py-3 px-6 rounded-xl hover:bg-green-200 transition-all text-sm">
+                                + Keranjang
+                            </a>
 
-                        <a href="{{ route('login') }}" class="flex-1 flex items-center justify-center bg-green-600 text-white font-black py-3 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition-all text-sm">
-                            Beli Sekarang
-                        </a>
-                    @endauth
+                            <a href="{{ route('login') }}" class="flex-1 flex items-center justify-center bg-green-600 text-white font-black py-3 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition-all text-sm">
+                                Beli Sekarang
+                            </a>
+                        @endauth
+                    @endif
                 </div>
             </div>
         </div>

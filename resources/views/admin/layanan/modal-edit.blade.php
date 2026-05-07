@@ -1,17 +1,15 @@
-<template x-teleport="body">
-    
-    <div x-show="showEditModal" 
-         class="fixed inset-0 z-[9999] flex items-start justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto py-10"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         style="display: none;">
-        
-        <div @click.away="showEditModal = false" 
-            class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl relative">
+<div x-show="showEditModal"
+     class="fixed inset-0 z-[9999] flex items-start justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto py-10"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     style="display: none;">
+
+    <div @click.away="showEditModal = false"
+        class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl relative">
             
             <div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center text-gray-900">
                 <h1 class="text-2xl font-bold">Edit Layanan</h1>
@@ -152,7 +150,7 @@
 
                     <div class="space-y-2 text-left">
                         <label class="text-sm font-bold text-gray-700 ml-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="harga" :value="Math.floor(editData.harga)" @input="editData.harga = $event.target.value" step="1" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none text-sm">
+                        <input type="number" name="harga" min="0" :value="Math.floor(editData.harga)" @input="editData.harga = $event.target.value" step="1" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 outline-none text-sm">
                     </div>
 
                     <div class="md:col-span-2 space-y-2 text-left">
@@ -178,4 +176,3 @@
             </form>
         </div>
     </div>
-</template>

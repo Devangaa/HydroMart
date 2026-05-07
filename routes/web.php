@@ -2,18 +2,18 @@
 
 use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Api\WilayahController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LayananController as PublicLayananController;
+use App\Http\Controllers\Pelanggan\TransaksiController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
-use App\Models\City;
-use App\Models\Kecamatan;
+use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// LANDING PAGE
 Route::get('/', function () {
     if (Auth::check() && Auth::user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
@@ -22,12 +22,14 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
+// PRODUK & LAYANAN
 Route::get('/produk', [PublicProductController::class, 'index'])->name('produk.index');
 Route::get('/produk/{slug}', [PublicProductController::class, 'show'])->name('produk.show');
 
 Route::get('/layanan', [PublicLayananController::class, 'index'])->name('layanan.index');
 Route::get('/layanan/{slug}', [PublicLayananController::class, 'show'])->name('layanan.show');
 
+// GUEST ONLY
 Route::middleware(['guest'])->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -43,8 +45,10 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/reset-password', [ForgotPasswordController::class, 'updatePassword'])->name('password.update');
 });
 
+// KALAU SUDAH LOGIN
 Route::middleware(['auth'])->group(function () {
 
+    // ADMIN ONLY
     Route::middleware('role:admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
@@ -71,6 +75,15 @@ Route::middleware(['auth'])->group(function () {
         ]);
     });
 
+    // PELANGGAN ONLY
+    Route::middleware(['role:pelanggan'])->group(function () {
+        Route::get('/checkout', [TransaksiController::class, 'checkout'])->name('checkout.produk.index');
+        Route::post('/checkout/store', [TransaksiController::class, 'store'])->name('checkout.produk.store');
+        Route::get('/pesanan-saya', [TransaksiController::class, 'history'])->name('transaksi.history');
+        Route::post('/transaksi/{id}/cancel', [TransaksiController::class, 'cancel'])->name('transaksi.cancel');
+    });
+
+    // PROFILE
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
@@ -79,15 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-// API Routes untuk Cascading Dropdown Wilayah
-Route::get('/api/provinces', [WilayahController::class, 'getProvinces']);
-Route::get('/api/cities/{provinceId}', [WilayahController::class, 'getCitiesByProvince']);
-Route::get('/api/kecamatan/{cityId}', [WilayahController::class, 'getKecamatanByCity']);
-
-Route::get('/cities/{province_id}', function ($province_id) {
-    return City::where('province_id', $province_id)->get();
-});
-
-Route::get('/kecamatans/{city_id}', function ($city_id) {
-    return Kecamatan::where('city_id', $city_id)->get();
-});
+// DROPDOWN WILAYAH
+Route::get('/provinces', [WilayahController::class, 'getProvinces']);
+Route::get('/cities/{provinceId}', [WilayahController::class, 'getCitiesByProvince']);
+Route::get('/kecamatan/{cityId}', [WilayahController::class, 'getKecamatanByCity']);

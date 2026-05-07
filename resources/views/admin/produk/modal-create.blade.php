@@ -168,19 +168,19 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="harga" value="{{ old('harga') }}" placeholder="cth. 15000" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                        <input type="number" name="harga" min="0" value="{{ old('harga') }}" placeholder="cth. 15000" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Stok <span class="text-red-500">*</span></label>
-                        <input type="number" name="jumlah_stok" value="{{ old('jumlah_stok') }}" placeholder="cth. 50" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                        <input type="number" name="jumlah_stok" min="0" value="{{ old('jumlah_stok') }}" placeholder="cth. 50" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
                     <div class="space-y-2"
                         x-data="{
                             openUnit: false,
                             selectedUnit: '{{ old('unit', 'Ikat') }}',
-                            unitList: ['Ikat', 'Set', 'Pcs']
+                            unitList: ['Ikat', 'Pcs']
                         }">
                         <label class="text-sm font-bold text-gray-700 ml-1">Unit <span class="text-red-500">*</span></label>
                         <div class="relative">
@@ -220,7 +220,7 @@
 
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Berat (gram)</label>
-                        <input type="number" name="berat" value="{{ old('berat') }}" placeholder="cth. 250" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
+                        <input type="number" name="berat" min="0" value="{{ old('berat') }}" placeholder="cth. 250" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
                     </div>
 
                     <div class="md:col-span-2 space-y-2">

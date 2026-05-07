@@ -11,12 +11,12 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index(request $request)
+    public function index(Request $request)
     {
         $categories = Product::distinct()->pluck('kategori');
 
         $allProducts = Product::all();
-    
+
         $stats = [
             'total' => $allProducts->count(),
             'aktif' => $allProducts->where('is_delete', false)->count(),
@@ -33,7 +33,7 @@ class ProductController extends Controller
         }
 
         if ($request->filled('search')) {
-        $query->where('nama_produk', 'like', '%' . $request->search . '%');
+            $query->where('nama_produk', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('category') && $request->category != 'Semua Kategori') {
@@ -41,6 +41,7 @@ class ProductController extends Controller
         }
 
         $products = $query->latest()->paginate(10);
+
         return view('admin.produk.index', compact('products', 'stats', 'categories'));
     }
 
@@ -54,23 +55,26 @@ class ProductController extends Controller
         $request->validate([
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable',
-            'harga' => 'required|numeric',
-            'jumlah_stok' => 'required|integer',
+            'harga' => 'required|numeric|min:0',
+            'jumlah_stok' => 'required|integer|min:0',
             'foto_produk.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048',
             'kategori' => 'required|string',
-            'berat' => 'required|integer',
+            'berat' => 'required|integer|min:0',
             'unit' => 'required|string',
         ], [
             'nama_produk.required' => 'Nama produk wajib diisi.',
-            'harga.required'       => 'Harga produk harus diisi.',
-            'harga.numeric'        => 'Harga harus berupa angka.',
+            'harga.required' => 'Harga produk harus diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'harga.min' => 'Harga tidak boleh kurang dari 0.',
             'jumlah_stok.required' => 'Stok tidak boleh kosong.',
-            'jumlah_stok.integer'  => 'Stok harus berupa angka bulat.',
-            'foto_produk.*.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_produk.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_produk.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
-            'berat.required'       => 'Berat produk wajib diisi.',
-            'berat.integer'        => 'Berat harus berupa angka (gram).',
+            'jumlah_stok.integer' => 'Stok harus berupa angka bulat.',
+            'jumlah_stok.min' => 'Stok tidak boleh kurang dari 0.',
+            'foto_produk.*.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_produk.*.mimes' => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_produk.*.max' => 'Ukuran gambar maksimal adalah 2MB.',
+            'berat.required' => 'Berat produk wajib diisi.',
+            'berat.integer' => 'Berat harus berupa angka (gram).',
+            'berat.min' => 'Berat tidak boleh kurang dari 0.',
         ]);
 
         $data = $request->all();
@@ -82,7 +86,7 @@ class ProductController extends Controller
 
             foreach ($files as $file) {
                 // Rename file agar unik & aman: [Timestamp]-[Random].ext
-                $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                $filename = time().'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
                 $file->move(public_path('uploads/produk'), $filename);
                 $filenames[] = $filename;
             }
@@ -93,16 +97,15 @@ class ProductController extends Controller
         Product::create([
             'nama_produk' => $request->nama_produk,
             'slug' => Str::slug($request->nama_produk),
-            'kategori'    => $request->kategori,
-            'harga'       => $request->harga,
+            'kategori' => $request->kategori,
+            'harga' => $request->harga,
             'jumlah_stok' => $request->jumlah_stok,
-            'unit'        => $request->unit,
-            'berat'       => $request->berat,
-            'deskripsi'   => $request->deskripsi,
+            'unit' => $request->unit,
+            'berat' => $request->berat,
+            'deskripsi' => $request->deskripsi,
             'foto_produk' => $filenames,
         ]);
 
-        
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan!');
     }
 
@@ -112,30 +115,34 @@ class ProductController extends Controller
 
         if ($request->has('restore') && $request->restore == '1') {
             $product->update(['is_delete' => false]);
-            return redirect()->back()->with('success', 'Produk "' . $product->nama_produk . '" berhasil dipulihkan!');
+
+            return redirect()->back()->with('success', 'Produk "'.$product->nama_produk.'" berhasil dipulihkan!');
         }
 
         $validator = Validator::make($request->all(), [
             'nama_produk' => 'required|string|max:255',
             'slug' => Str::slug($request->nama_produk),
             'deskripsi' => 'nullable',
-            'harga' => 'required|integer',
-            'jumlah_stok' => 'required|integer',
+            'harga' => 'required|integer|min:0',
+            'jumlah_stok' => 'required|integer|min:0',
             'foto_produk.*' => 'nullable|image|mimes:jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP|max:2048',
             'kategori' => 'required|string',
-            'berat' => 'required|integer',
+            'berat' => 'required|integer|min:0',
             'unit' => 'required|string',
         ], [
             'nama_produk.required' => 'Nama produk wajib diisi.',
-            'harga.required'       => 'Harga produk harus diisi.',
-            'harga.numeric'        => 'Harga harus berupa angka.',
+            'harga.required' => 'Harga produk harus diisi.',
+            'harga.numeric' => 'Harga harus berupa angka.',
+            'harga.min' => 'Harga tidak boleh kurang dari 0.',
             'jumlah_stok.required' => 'Stok tidak boleh kosong.',
-            'jumlah_stok.integer'  => 'Stok harus berupa angka bulat.',
-            'foto_produk.*.image'    => 'File yang diunggah harus berupa gambar.',
-            'foto_produk.*.mimes'    => 'Format gambar hanya boleh jpg, jpeg, atau png.',
-            'foto_produk.*.max'      => 'Ukuran gambar maksimal adalah 2MB.',
-            'berat.required'       => 'Berat produk wajib diisi.',
-            'berat.integer'        => 'Berat harus berupa angka (gram).',
+            'jumlah_stok.integer' => 'Stok harus berupa angka bulat.',
+            'jumlah_stok.min' => 'Stok tidak boleh kurang dari 0.',
+            'foto_produk.*.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_produk.*.mimes' => 'Format gambar hanya boleh jpg, jpeg, atau png.',
+            'foto_produk.*.max' => 'Ukuran gambar maksimal adalah 2MB.',
+            'berat.required' => 'Berat produk wajib diisi.',
+            'berat.integer' => 'Berat harus berupa angka (gram).',
+            'berat.min' => 'Berat tidak boleh kurang dari 0.',
         ]);
 
         if ($validator->fails()) {
@@ -150,7 +157,7 @@ class ProductController extends Controller
 
         if ($request->has('remove_images')) {
             foreach ($request->remove_images as $imageName) {
-                $filePath = public_path('uploads/produk/' . $imageName);
+                $filePath = public_path('uploads/produk/'.$imageName);
                 if (File::exists($filePath)) {
                     File::delete($filePath);
                 }
@@ -160,10 +167,10 @@ class ProductController extends Controller
 
         if ($request->hasFile('foto_produk')) {
             $files = $request->file('foto_produk');
-            
+
             foreach ($files as $file) {
-                if (count($currentImages) < 4) { 
-                    $filename = time() . '-' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                if (count($currentImages) < 4) {
+                    $filename = time().'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
                     $file->move(public_path('uploads/produk'), $filename);
                     $currentImages[] = $filename;
                 }
@@ -174,12 +181,12 @@ class ProductController extends Controller
         $product->update([
             'nama_produk' => $request->nama_produk,
             'slug' => Str::slug($request->nama_produk),
-            'kategori'    => $request->kategori,
-            'harga'       => $request->harga,
+            'kategori' => $request->kategori,
+            'harga' => $request->harga,
             'jumlah_stok' => $request->jumlah_stok,
-            'unit'        => $request->unit,
-            'berat'       => $request->berat,
-            'deskripsi'   => $request->deskripsi,
+            'unit' => $request->unit,
+            'berat' => $request->berat,
+            'deskripsi' => $request->deskripsi,
             'foto_produk' => $currentImages,
         ]);
 
@@ -190,6 +197,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->update(['is_delete' => true]);
+
         return redirect()->back()->with('success', 'Produk berhasil dihapus!');
     }
 }

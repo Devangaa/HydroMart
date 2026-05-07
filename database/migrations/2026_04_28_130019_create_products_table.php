@@ -14,13 +14,15 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('nama_produk');
+            $table->string('slug')->unique()->nullable();
             $table->text('deskripsi')->nullable();
             $table->decimal('harga', 12, 2);
             $table->integer('jumlah_stok')->default(0);
-            $table->string('foto_produk')->nullable();
+            $table->text('foto_produk')->nullable();
             $table->string('kategori');
-            $table->integer('berat'); 
-            $table->string('unit'); 
+            $table->integer('berat');
+            $table->string('unit');
+            $table->integer('total_terjual')->default(0);
             $table->boolean('is_delete')->default(false);
             $table->timestamps();
         });

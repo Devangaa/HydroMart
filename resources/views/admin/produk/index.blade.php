@@ -208,6 +208,8 @@
                                     <td class="px-6 py-4">
                                         @if($product->is_delete)
                                             <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-lg uppercase">Terhapus</span>
+                                        @elseif($product->jumlah_stok == 0)
+                                            <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-lg uppercase">Stok Habis</span>
                                         @elseif($product->jumlah_stok <= 10)
                                             <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-bold rounded-lg uppercase">Stok Menipis</span>
                                         @else
