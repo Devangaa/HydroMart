@@ -23,19 +23,13 @@ class OtpMail extends Mailable
         $this->otp = $otp;
     }
 
-    public function build()
-    {
-        return $this->subject('Kode Verifikasi Anda')
-            ->html("<h1>Kode OTP Anda adalah: <b>{$this->otp}</b></h1><p>Kode ini berlaku selama 10 menit.</p>");
-    }
-
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Otp Mail',
+            subject: 'Kode Verifikasi Anda',
         );
     }
 
@@ -45,7 +39,7 @@ class OtpMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            markdown: 'emails.otp',
         );
     }
 

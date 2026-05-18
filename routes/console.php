@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PenukaranReward;
 use App\Models\Transaksi;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -14,4 +15,10 @@ Schedule::call(function () {
         ->where('batas_pembayaran', '<', now())
         ->get()
         ->each(fn ($transaksi) => $transaksi->markAsCancelled());
+})->everyMinute();
+
+Schedule::call(function () {
+    PenukaranReward::where('status_reward', 'Tersedia')
+        ->where('batas_berlaku', '<', now())
+        ->update(['status_reward' => 'Kedaluwarsa']);
 })->everyMinute();

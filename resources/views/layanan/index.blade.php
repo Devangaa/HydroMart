@@ -51,53 +51,47 @@
             @endforelse
         </div>
 
-        <div id="loading-trigger" class="py-8 text-center opacity-0 transition-opacity duration-300">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600"></div>
-            <p class="text-gray-400 text-xs font-bold mt-4 uppercase tracking-tighter">Memuat layanan lainnya...</p>
+        @if($layanan->hasPages())
+        <div class="mt-12 flex flex-col md:flex-row justify-between items-center gap-4" data-aos="fade-up">
+            <p class="text-xs font-bold text-gray-400">
+                Menampilkan {{ $layanan->firstItem() }}-{{ $layanan->lastItem() }} dari {{ $layanan->total() }} layanan
+            </p>
+            
+            <div class="flex gap-1">
+                @if ($layanan->onFirstPage())
+                    <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
+                        <
+                    </span>
+                @else
+                    <a href="{{ $layanan->appends(request()->query())->previousPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
+                        <
+                    </a>
+                @endif
+
+                @foreach ($layanan->appends(request()->query())->getUrlRange(max(1, $layanan->currentPage() - 1), min($layanan->lastPage(), $layanan->currentPage() + 1)) as $page => $url)
+                    @if ($page == $layanan->currentPage())
+                        <span class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl shadow-sm shadow-green-100">
+                            {{ $page }}
+                        </span>
+                    @else
+                        <a href="{{ $url }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all">
+                            {{ $page }}
+                        </a>
+                    @endif
+                @endforeach
+
+                @if ($layanan->hasMorePages())
+                    <a href="{{ $layanan->appends(request()->query())->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
+                        >
+                    </a>
+                @else
+                    <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
+                        >
+                    </span>
+                @endif
+            </div>
         </div>
+        @endif
     </div>
 </div>
-
-<script>
-    let nextPageUrl = '{{ $layanan->nextPageUrl() }}';
-    const container = document.querySelector('#layanan-container');
-    const loading = document.querySelector('#loading-trigger');
-
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && nextPageUrl) {
-            loadMoreLayanan();
-        }
-    }, { threshold: 0.1 });
-
-    observer.observe(loading);
-
-    function loadMoreLayanan() {
-        loading.style.opacity = '1';
-
-        fetch(nextPageUrl, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => response.text())
-        .then(data => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(data, 'text/html');
-            const newLayanan = htmlDoc.querySelector('#layanan-container').innerHTML;
-            
-            // Cari URL halaman berikutnya dari script yang di-render ulang
-            const nextScript = htmlDoc.querySelector('#next-page-script');
-            const newNextPageUrl = nextScript ? nextScript.getAttribute('data-url') : null;
-
-            container.insertAdjacentHTML('beforeend', newLayanan);
-            nextPageUrl = newNextPageUrl && newNextPageUrl !== '' ? newNextPageUrl : null;
-            
-            if (!nextPageUrl) loading.remove();
-            loading.style.opacity = '0';
-            
-            AOS.refresh();
-        })
-        .catch(err => console.error(err));
-    }
-</script>
-
-<div id="next-page-script" data-url="{{ $layanan->nextPageUrl() }}" class="hidden"></div>
 @endsection

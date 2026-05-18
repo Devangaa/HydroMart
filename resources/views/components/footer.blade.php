@@ -20,17 +20,6 @@
                 @endif
             </div>
 
-            @if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
-            <div>
-                <h4 class="text-gray-900 font-bold mb-6 text-base">Menu</h4>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="{{ route('landing') }}" class="hover:text-green-600 transition">Beranda</a></li>
-                    <li><a href="{{ route('produk.index') }}" class="hover:text-green-600 transition">Produk</a></li>
-                    <li><a href="{{ route('layanan.index') }}" class="hover:text-green-600 transition">Layanan</a></li>
-                </ul>
-            </div>
-            @endif
-
             @if(auth()->check() && auth()->user()->role == 'admin')
                 <div>
                     <h4 class="text-gray-900 font-bold mb-6 text-base">Layanan</h4>
@@ -43,6 +32,26 @@
                         <li><a href="#" class="hover:text-green-600 transition">Keuangan</a></li>
                         <li><a href="#" class="hover:text-green-600 transition">Laporan</a></li>
                         <li><a href="#" class="hover:text-green-600 transition">Dashboard</a></li>
+                    </ul>
+                </div>
+            @elseif(auth()->check() && auth()->user()->role == 'pelanggan')
+                <div>
+                    <h4 class="text-gray-900 font-bold mb-6 text-base">Menu</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="{{ route('landing') }}" class="hover:text-green-600 transition">Beranda</a></li>
+                        <li><a href="{{ route('produk.index') }}" class="hover:text-green-600 transition">Produk</a></li>
+                        <li><a href="{{ route('layanan.index') }}" class="hover:text-green-600 transition">Layanan</a></li>
+                        <li><a href="{{ route('transaksi.history') }}" class="hover:text-green-600 transition">Pesanan</a></li>
+                        <li><a href="{{ route('reward.index') }}" class="hover:text-green-600 transition">Reward</a></li>
+                    </ul>
+                </div>
+            @else
+                <div>
+                    <h4 class="text-gray-900 font-bold mb-6 text-base">Menu</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="{{ route('landing') }}" class="hover:text-green-600 transition">Beranda</a></li>
+                        <li><a href="{{ route('produk.index') }}" class="hover:text-green-600 transition">Produk</a></li>
+                        <li><a href="{{ route('layanan.index') }}" class="hover:text-green-600 transition">Layanan</a></li>
                     </ul>
                 </div>
             @endif

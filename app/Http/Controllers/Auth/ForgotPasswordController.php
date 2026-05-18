@@ -63,7 +63,10 @@ class ForgotPasswordController extends Controller
             return response()->json(['message' => 'Kode OTP salah atau sudah kadaluarsa!'], 422);
         }
 
-        session(['reset_email' => $request->email]);
+        session([
+            'reset_email' => $request->email,
+            'reset_email_expires_at' => Carbon::now()->addMinutes(10)->timestamp
+        ]);
 
         // Jika benar, hapus OTP agar tidak bisa dipakai lagi
         $check->delete();
@@ -73,8 +76,13 @@ class ForgotPasswordController extends Controller
 
     public function showResetForm(Request $request)
     {
-        if (! session()->has('reset_email')) {
+        if (! session()->has('reset_email') || ! session()->has('reset_email_expires_at')) {
             return redirect()->route('password.request')->with('error', 'Silahkan verifikasi email terlebih dahulu.');
+        }
+
+        if (Carbon::now()->timestamp > session('reset_email_expires_at')) {
+            session()->forget(['reset_email', 'reset_email_expires_at']);
+            return redirect()->route('password.request')->with('error', 'Sesi ubah kata sandi telah kedaluwarsa. Silahkan minta OTP baru.');
         }
 
         $email = session('reset_email');
@@ -84,10 +92,17 @@ class ForgotPasswordController extends Controller
 
     public function updatePassword(Request $request)
     {
-        if (! session()->has('reset_email')) {
+        if (! session()->has('reset_email') || ! session()->has('reset_email_expires_at')) {
             return response()->json([
                 'message' => 'Akses ditolak. Silahkan verifikasi OTP kembali.',
             ], 403); // 403 Forbidden
+        }
+
+        if (Carbon::now()->timestamp > session('reset_email_expires_at')) {
+            session()->forget(['reset_email', 'reset_email_expires_at']);
+            return response()->json([
+                'message' => 'Sesi ubah kata sandi telah kedaluwarsa. Silahkan minta OTP baru.',
+            ], 403);
         }
 
         $sessionEmail = session('reset_email');
@@ -130,7 +145,7 @@ class ForgotPasswordController extends Controller
             $user->save();
 
             // 4. CLEANUP: Hapus session "tiket" agar tidak bisa dipakai lagi
-            session()->forget('reset_email');
+            session()->forget(['reset_email', 'reset_email_expires_at']);
 
             return response()->json([
                 'message' => 'Password berhasil diperbarui!',

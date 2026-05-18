@@ -9,6 +9,7 @@ use App\Models\DetailTransaksiProduk;
 use App\Models\Kecamatan;
 use App\Models\Keranjang;
 use App\Models\Layanan;
+use App\Models\PenukaranReward;
 use App\Models\Product;
 use App\Models\Province;
 use App\Models\Transaksi;
@@ -138,8 +139,14 @@ class TransaksiController extends Controller
             $kecamatans = collect();
         }
 
+        $availableRewards = PenukaranReward::with('reward')
+            ->where('id_akun', Auth::id())
+            ->where('status_reward', 'Tersedia')
+            ->where('batas_berlaku', '>', now())
+            ->get();
+
         return view('pelanggan.transaksi.checkout.produk.index', compact(
-            'items', 'grandTotal', 'mode', 'isSayuran', 'kecamatans', 'provinces', 'sayuranProvince', 'sayuranCity', 'totalWeight'
+            'items', 'grandTotal', 'mode', 'isSayuran', 'kecamatans', 'provinces', 'sayuranProvince', 'sayuranCity', 'totalWeight', 'availableRewards'
         ));
     }
 
@@ -178,6 +185,7 @@ class TransaksiController extends Controller
             'alamat_lengkap' => 'required|string',
             'kecamatan_id' => 'required|exists:kecamatans,id',
             'metode_pembayaran' => 'required|in:qris,bca,mandiri,cod',
+            'id_penukaran_reward' => 'nullable|exists:penukaran_reward,id',
         ]);
 
         $itemsData = $request->input('items');
@@ -206,16 +214,44 @@ class TransaksiController extends Controller
                 $grandTotal += $products->get($item['product_id'])->harga * $item['jumlah'];
             }
 
+            $discount = 0;
+            if ($request->id_penukaran_reward) {
+                $redemption = PenukaranReward::with('reward')
+                    ->where('id', $request->id_penukaran_reward)
+                    ->where('id_akun', Auth::id())
+                    ->where('status_reward', 'Tersedia')
+                    ->first();
+
+                if ($redemption && $grandTotal >= $redemption->reward->minimal_pembelian) {
+                    $discount = $redemption->reward->diskon;
+                    $redemption->update([
+                        'status_reward' => 'Digunakan',
+                        'tanggal_penukaran' => now(),
+                    ]);
+                }
+            }
+
+            $finalTotal = max(0, $grandTotal - $discount);
+            $poin = max(0, floor($finalTotal / 10000));
+
+            // If total is 0, always set status to Menunggu Konfirmasi (nothing to pay)
+            if ($finalTotal + $ongkir <= 0) {
+                $status = 'Menunggu Konfirmasi';
+            } else {
+                $status = ($request->metode_pembayaran == 'cod') ? 'Menunggu Konfirmasi' : 'Menunggu Pembayaran';
+            }
+
             $transaksi = Transaksi::create([
                 'user_id' => Auth::id(),
+                'id_penukaran_reward' => $request->id_penukaran_reward,
                 'kecamatan_id' => $request->kecamatan_id,
                 'tanggal_transaksi' => now('Asia/Jakarta'),
                 'metode_pembayaran' => $request->metode_pembayaran,
-                'status' => ($request->metode_pembayaran == 'cod') ? 'Menunggu Konfirmasi' : 'Menunggu Pembayaran',
+                'status' => $status,
                 'alamat_pengiriman' => $request->alamat_lengkap,
                 'nama_penerima' => $request->nama_penerima,
                 'no_hp' => $request->no_hp,
-                'poin' => floor($grandTotal / 10000),
+                'poin' => $poin,
                 'batas_pembayaran' => now('Asia/Jakarta')->addHours(24),
                 'ongkir' => $ongkir,
             ]);
@@ -235,8 +271,9 @@ class TransaksiController extends Controller
                 }
             }
 
-            if ($request->metode_pembayaran == 'cod') {
-                return redirect()->route('transaksi.pembayaran', $transaksi->order_id)->with('success', 'Pesanan COD berhasil dibuat!');
+            // Skip Midtrans for COD or zero-total transactions
+            if ($request->metode_pembayaran == 'cod' || $status === 'Menunggu Konfirmasi') {
+                return redirect()->route('transaksi.show', $transaksi->order_id)->with('success', 'Pesanan berhasil dibuat!');
             } else {
                 return $this->generateMidtransPayment($transaksi);
             }
@@ -281,7 +318,7 @@ class TransaksiController extends Controller
             ]);
 
             if ($request->metode_pembayaran == 'cod') {
-                return redirect()->route('transaksi.pembayaran', $transaksi->order_id)->with('success', 'Pesanan COD berhasil dibuat!');
+                return redirect()->route('transaksi.show', $transaksi->order_id)->with('success', 'Pesanan COD berhasil dibuat!');
             } else {
                 return $this->generateMidtransPayment($transaksi);
             }
@@ -345,9 +382,11 @@ class TransaksiController extends Controller
 
     public function show($order_id)
     {
+        $this->syncExpiredTransactions();
+
         $transaksi = Transaksi::where('user_id', Auth::id())
             ->where('order_id', $order_id)
-            ->with(['detailProduks.produk', 'detailLayanans.layanan', 'kecamatan.city.province'])
+            ->with(['detailProduks.produk', 'detailProduks.ulasan', 'detailLayanans.layanan', 'detailLayanans.ulasan', 'kecamatan.city.province'])
             ->firstOrFail();
 
         $trackingData = null;
@@ -395,11 +434,11 @@ class TransaksiController extends Controller
                     'service' => 'REG',
                     'status' => 'DELIVERED',
                     'date' => now()->format('Y-m-d H:i:s'),
-                    'desc' => 'Paket telah diterima',
+                    'description' => 'Paket telah diterima',
                 ],
                 'history' => [
-                    ['date' => now()->subHours(2)->format('Y-m-d H:i:s'), 'desc' => 'PAKET DITERIMA', 'location' => 'JEMBER'],
-                    ['date' => now()->subHours(5)->format('Y-m-d H:i:s'), 'desc' => 'PAKET KELUAR GUDANG', 'location' => 'JEMBER'],
+                    ['date' => now()->subHours(2)->format('Y-m-d H:i:s'), 'description' => 'PAKET DITERIMA', 'location' => 'JEMBER'],
+                    ['date' => now()->subHours(5)->format('Y-m-d H:i:s'), 'description' => 'PAKET KELUAR GUDANG', 'location' => 'JEMBER'],
                 ],
             ],
         ];
@@ -407,12 +446,32 @@ class TransaksiController extends Controller
 
     public function pembayaran($order_id)
     {
+        $this->syncExpiredTransactions();
+
         $transaksi = Transaksi::where('user_id', Auth::id())
             ->where('order_id', $order_id)
             ->with(['detailProduks.produk', 'detailLayanans.layanan'])
             ->firstOrFail();
 
+        // Jika status sudah berubah dari Menunggu Pembayaran, arahkan ke show
+        if (! in_array($transaksi->status, ['Menunggu Pembayaran', 'Menunggu Konfirmasi'])) {
+            return redirect()->route('transaksi.show', $transaksi->order_id);
+        }
+
         return view('pelanggan.transaksi.pembayaran', compact('transaksi'));
+    }
+
+    public function checkStatus($order_id)
+    {
+        $transaksi = Transaksi::where('user_id', Auth::id())
+            ->where('order_id', $order_id)
+            ->firstOrFail();
+
+        return response()->json([
+            'status' => $transaksi->status,
+            'is_processed' => ! in_array($transaksi->status, ['Menunggu Pembayaran', 'Menunggu Konfirmasi']),
+            'redirect_url' => route('transaksi.show', $transaksi->order_id),
+        ]);
     }
 
     public function cancel($order_id)
@@ -430,8 +489,26 @@ class TransaksiController extends Controller
         }
     }
 
+    public function selesai($order_id)
+    {
+        try {
+            $transaksi = Transaksi::where('order_id', $order_id)
+                ->where('user_id', Auth::id())
+                ->where('status', 'Dikirim')
+                ->firstOrFail();
+
+            $transaksi->markAsSelesai();
+
+            return back()->with('success', 'Pesanan telah selesai. Terima kasih telah berbelanja!');
+        } catch (Exception $e) {
+            return back()->with('error', 'Gagal menyelesaikan pesanan: '.$e->getMessage());
+        }
+    }
+
     public function history(Request $request)
     {
+        $this->syncExpiredTransactions();
+
         $tab = $request->get('tab', 'menunggu-pembayaran');
         $query = Transaksi::where('user_id', Auth::id())
             ->with(['detailProduks.produk', 'detailLayanans.layanan', 'kecamatan'])
@@ -448,5 +525,14 @@ class TransaksiController extends Controller
         $transaksis = $query->paginate(10)->withQueryString();
 
         return view('pelanggan.transaksi.history', compact('transaksis', 'tab'));
+    }
+
+    private function syncExpiredTransactions()
+    {
+        Transaksi::where('user_id', Auth::id())
+            ->where('status', 'Menunggu Pembayaran')
+            ->where('batas_pembayaran', '<', now())
+            ->get()
+            ->each(fn ($transaksi) => $transaksi->markAsCancelled());
     }
 }

@@ -28,4 +28,9 @@ class DetailTransaksiProduk extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function ulasan()
+    {
+        return $this->hasOne(Ulasan::class, 'id_detailtransaksi')->whereNotNull('id_produk');
+    }
 }

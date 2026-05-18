@@ -3,6 +3,8 @@
 @section('content')
 <div x-data="{ 
     showDeleteModal: false, 
+    showReviewModal: false,
+    reviewData: [],
     deleteUrl: '',
     showCreateModal: {{ ($errors->any() && !session('editingProductId')) ? 'true' : 'false' }}, 
     showEditModal: {{ session('editingProductId') ? 'true' : 'false' }},
@@ -171,10 +173,47 @@
                         <table class="w-full text-left">
                             <thead class="bg-gray-50/50">
                                 <tr>
-                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Produk</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'nama_produk', 'order' => request('sort_by') == 'nama_produk' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                            Produk
+                                            @if(request('sort_by') == 'nama_produk')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ request('order') == 'asc' ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Kategori</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Harga</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Stok</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'harga', 'order' => request('sort_by') == 'harga' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                            Harga
+                                            @if(request('sort_by') == 'harga')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ request('order') == 'asc' ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'jumlah_stok', 'order' => request('sort_by') == 'jumlah_stok' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                            Stok
+                                            @if(request('sort_by') == 'jumlah_stok')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ request('order') == 'asc' ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'total_terjual', 'order' => request('sort_by') == 'total_terjual' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                            Terjual
+                                            @if(request('sort_by') == 'total_terjual')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ request('order') == 'asc' ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            @endif
+                                        </a>
+                                    </th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'ulasans_avg_rating', 'order' => request('sort_by') == 'ulasans_avg_rating' && request('order') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-green-600 transition-colors">
+                                            Rating
+                                            @if(request('sort_by') == 'ulasans_avg_rating')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ request('order') == 'asc' ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            @endif
+                                        </a>
+                                    </th>
                                     <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</th>
                                     <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                                     <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Aksi</th>
@@ -200,10 +239,19 @@
                                     <td class="px-6 py-4">
                                         <span class="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-lg uppercase">{{ $product->kategori }}</span>
                                     </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900 text-sm">
+                                    <td class="px-6 py-4 font-bold text-gray-900 text-sm whitespace-nowrap">
                                         Rp {{ number_format($product->harga, 0, ',', '.') }}
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 text-sm">{{ $product->jumlah_stok }}</td>
+                                    <td class="px-6 py-4 font-bold text-gray-900 text-sm">{{ $product->total_terjual ?? 0 }}</td>
+                                    <td class="px-6 py-4 font-bold text-gray-900 text-sm">
+                                        <div class="flex items-center gap-1 text-orange-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                            <span>{{ number_format($product->ulasans_avg_rating ?? 0, 1) }}</span>
+                                        </div>
+                                    </td>
                                     <td class="px-6 py-4 text-gray-500 text-sm">{{ $product->unit }}</td>
                                     <td class="px-6 py-4">
                                         @if($product->is_delete)
@@ -225,6 +273,14 @@
                                                     <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-orange-50 text-orange-600 text-xs font-bold rounded-xl hover:bg-orange-600 hover:text-white transition">Pulihkan</button>
                                                 </form>
                                             @else
+                                                <button 
+                                                    @click="
+                                                        showReviewModal = true;
+                                                        reviewData = {{ json_encode($product->ulasans) }};
+                                                    "
+                                                    class="w-full sm:w-auto px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl hover:bg-blue-600 hover:text-white transition">
+                                                    Lihat Ulasan
+                                                </button>
                                                 
                                                 <button 
                                                     @click="
@@ -256,7 +312,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center text-gray-400 font-bold">Tidak ada data produk ditemukan.</td>
+                                    <td colspan="9" class="px-6 py-12 text-center text-gray-400 font-bold">Tidak ada data produk ditemukan.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -311,5 +367,6 @@
     @include('admin.produk.modal-delete')
     @include('admin.produk.modal-create')
     @include('admin.produk.modal-edit')
+    @include('admin.produk.modal-reviews')
 </div>
 @endsection

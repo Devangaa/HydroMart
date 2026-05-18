@@ -18,6 +18,11 @@ class Transaksi extends Model
         return $this->hasMany(DetailTransaksiProduk::class, 'transaksi_id');
     }
 
+    public function rewardRedemption()
+    {
+        return $this->belongsTo(PenukaranReward::class, 'id_penukaran_reward');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -30,6 +35,7 @@ class Transaksi extends Model
 
     protected $fillable = [
         'user_id',
+        'id_penukaran_reward',
         'order_id',
         'kecamatan_id',
         'alamat_pengiriman',
@@ -48,14 +54,48 @@ class Transaksi extends Model
 
     public function getTotalHargaAttribute()
     {
-        return ($this->detailProduks->sum('total_harga') ?? 0) +
-               ($this->detailLayanans->sum('total_harga') ?? 0) +
-               ($this->ongkir ?? 0);
+        $total = ($this->detailProduks->sum('total_harga') ?? 0) +
+                 ($this->detailLayanans->sum('total_harga') ?? 0) +
+                 ($this->ongkir ?? 0);
+
+        if ($this->rewardRedemption) {
+            $total -= $this->rewardRedemption->reward->diskon;
+        }
+
+        return max(0, $total);
     }
 
     public function markAsPaid()
     {
         return $this->update(['status' => 'Diproses']);
+    }
+
+    public function markAsSelesai()
+    {
+        if ($this->status !== 'Selesai') {
+            return DB::transaction(function () {
+                $this->update(['status' => 'Selesai']);
+
+                // Berikan poin ke pelanggan
+                $this->user->increment('poin_reward', $this->poin);
+
+                // Catat riwayat poin
+                RiwayatPoin::create([
+                    'id_akun' => $this->user_id,
+                    'jumlah_poin' => $this->poin,
+                    'keterangan' => 'Poin dari transaksi '.$this->order_id,
+                ]);
+
+                // Update total_terjual untuk setiap produk
+                foreach ($this->detailProduks as $detail) {
+                    $detail->produk?->increment('total_terjual', $detail->jumlah);
+                }
+
+                return true;
+            });
+        }
+
+        return false;
     }
 
     public function markAsCancelled()

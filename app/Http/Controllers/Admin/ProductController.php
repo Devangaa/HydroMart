@@ -24,7 +24,9 @@ class ProductController extends Controller
             'dihapus' => $allProducts->where('is_delete', true)->count(),
         ];
 
-        $query = Product::query();
+        $query = Product::query()->withAvg('ulasans', 'rating')->with(['ulasans' => function ($q) {
+            $q->where('isdelete', false)->with('user');
+        }]);
 
         if ($request->query('status') == 'terhapus') {
             $query->where('is_delete', true);
@@ -40,7 +42,19 @@ class ProductController extends Controller
             $query->where('kategori', $request->category);
         }
 
-        $products = $query->latest()->paginate(10);
+        // Sorting logic
+        $sortBy = $request->get('sort_by', 'created_at');
+        $order = $request->get('order', 'desc');
+
+        $allowedSorts = ['jumlah_stok', 'total_terjual', 'ulasans_avg_rating', 'nama_produk', 'harga', 'created_at'];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $order);
+        } else {
+            $query->latest();
+        }
+
+        $products = $query->paginate(10)->withQueryString();
 
         return view('admin.produk.index', compact('products', 'stats', 'categories'));
     }

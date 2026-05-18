@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
+use App\Models\Ulasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -34,7 +34,7 @@ class TransaksiController extends Controller
 
     public function show($order_id)
     {
-        $transaksi = Transaksi::with(['user', 'kecamatan.city.province', 'detailProduks.produk', 'detailLayanans.layanan'])
+        $transaksi = Transaksi::with(['user', 'kecamatan.city.province', 'detailProduks.produk', 'detailProduks.ulasan', 'detailLayanans.layanan', 'detailLayanans.ulasan'])
             ->where('order_id', $order_id)
             ->firstOrFail();
 
@@ -104,18 +104,14 @@ class TransaksiController extends Controller
             }
         }
 
-        return DB::transaction(function () use ($transaksi, $newStatus) {
+        if ($newStatus === 'Selesai') {
+            $transaksi->markAsSelesai();
+        } else {
             $transaksi->status = $newStatus;
             $transaksi->save();
+        }
 
-            // Berikan poin ke pelanggan jika status berubah menjadi Selesai
-            if ($newStatus === 'Selesai') {
-                $user = $transaksi->user;
-                $user->increment('poin_reward', $transaksi->poin);
-            }
-
-            return back()->with('success', "Status pesanan berhasil diubah menjadi $newStatus.");
-        });
+        return back()->with('success', "Status pesanan berhasil diubah menjadi $newStatus.");
     }
 
     public function updateResi(Request $request, $order_id)
@@ -149,7 +145,7 @@ class TransaksiController extends Controller
 
             $data = $response->json();
 
-            if ($response->successful() && isset($data['status']) && $data['status'] === 200) {
+            if ($response->successful() && isset($data['status']) && $data['status'] === 200 && ! empty($data['data']['history'])) {
                 // Success: Update resi and status
                 $transaksi->ekspedisi = $request->ekspedisi;
                 $transaksi->nomor_resi = $request->nomor_resi;
@@ -157,13 +153,32 @@ class TransaksiController extends Controller
                 $transaksi->save();
 
                 return back()->with('success', 'Nomor resi valid. Pesanan telah dikirim.');
-            } else {
-                return back()->withErrors(['nomor_resi' => 'nomor resi tidak valid'])->withInput();
             }
+
+            return back()->withErrors(['nomor_resi' => 'nomor resi tidak valid'])->withInput();
         } catch (\Exception $e) {
             Log::error('BinderByte API Error: '.$e->getMessage());
 
-            return back()->with('error', 'Terjadi kesalahan saat menghubungi layanan kurir.');
+            return back()->withErrors(['nomor_resi' => 'nomor resi tidak valid'])->withInput();
+        }
+    }
+
+    public function replyUlasan(Request $request, $id)
+    {
+        $request->validate([
+            'balasan' => 'required|string|max:1000',
+        ]);
+
+        try {
+            $ulasan = Ulasan::findOrFail($id);
+            $ulasan->update([
+                'balasan' => $request->balasan,
+                'tanggal_balasan' => now(),
+            ]);
+
+            return back()->with('success', 'Balasan ulasan berhasil dikirim.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim balasan: '.$e->getMessage());
         }
     }
 
@@ -179,27 +194,27 @@ class TransaksiController extends Controller
                     'service' => 'REG',
                     'status' => 'DELIVERED',
                     'date' => now()->format('Y-m-d H:i:s'),
-                    'desc' => 'Paket telah diterima oleh [Mothyw]',
+                    'description' => 'Paket telah diterima oleh [Mothyw]',
                 ],
                 'history' => [
                     [
                         'date' => now()->subHours(2)->format('Y-m-d H:i:s'),
-                        'desc' => 'PESANAN TELAH DIANTAR KE ALAMAT TUJUAN',
+                        'description' => 'PESANAN TELAH DIANTAR KE ALAMAT TUJUAN',
                         'location' => 'JEMBER',
                     ],
                     [
                         'date' => now()->subHours(5)->format('Y-m-d H:i:s'),
-                        'desc' => 'PAKET KELUAR DARI GUDANG (DC JEMBER)',
+                        'description' => 'PAKET KELUAR DARI GUDANG (DC JEMBER)',
                         'location' => 'JEMBER',
                     ],
                     [
                         'date' => now()->subDays(1)->format('Y-m-d H:i:s'),
-                        'desc' => 'PAKET SEDANG DALAM PERJALANAN (TRANSIT)',
+                        'description' => 'PAKET SEDANG DALAM PERJALANAN (TRANSIT)',
                         'location' => 'SURABAYA',
                     ],
                     [
                         'date' => now()->subDays(1)->subHours(3)->format('Y-m-d H:i:s'),
-                        'desc' => 'PESANAN DIPROSES DI PUSAT SORTIR',
+                        'description' => 'PESANAN DIPROSES DI PUSAT SORTIR',
                         'location' => 'JAKARTA',
                     ],
                 ],

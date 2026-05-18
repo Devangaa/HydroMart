@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\RewardController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LayananController as PublicLayananController;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\TransaksiController;
+use App\Http\Controllers\Pelanggan\UlasanController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WilayahController;
@@ -87,6 +89,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kelola-transaksi/{order_id}', [App\Http\Controllers\Admin\TransaksiController::class, 'show'])->name('transaksi.show');
         Route::post('/kelola-transaksi/{order_id}/status', [App\Http\Controllers\Admin\TransaksiController::class, 'updateStatus'])->name('transaksi.status');
         Route::post('/kelola-transaksi/{order_id}/resi', [App\Http\Controllers\Admin\TransaksiController::class, 'updateResi'])->name('transaksi.resi');
+        Route::post('/kelola-transaksi/ulasan/{id}/reply', [App\Http\Controllers\Admin\TransaksiController::class, 'replyUlasan'])->name('transaksi.reply-ulasan');
+
+        Route::get('/kelola-reward/customers', [RewardController::class, 'customers'])->name('reward.customers');
+        Route::get('/kelola-reward/customers/{id}', [RewardController::class, 'customerShow'])->name('reward.customer-show');
+        Route::resource('kelola-reward', RewardController::class)->names([
+            'index' => 'reward.index',
+            'create' => 'reward.create',
+            'store' => 'reward.store',
+            'show' => 'reward.show',
+            'edit' => 'reward.edit',
+            'update' => 'reward.update',
+            'destroy' => 'reward.destroy',
+        ]);
     });
 
     // PELANGGAN ONLY
@@ -107,7 +122,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pesanan-saya', [TransaksiController::class, 'history'])->name('transaksi.history');
         Route::get('/transaksi/{order_id}', [TransaksiController::class, 'show'])->name('transaksi.show');
         Route::get('/pembayaran/{order_id}', [TransaksiController::class, 'pembayaran'])->name('transaksi.pembayaran');
+        Route::get('/transaksi/{order_id}/status-check', [TransaksiController::class, 'checkStatus'])->name('transaksi.status-check');
         Route::post('/transaksi/{order_id}/cancel', [TransaksiController::class, 'cancel'])->name('transaksi.cancel');
+        Route::post('/transaksi/{order_id}/selesai', [TransaksiController::class, 'selesai'])->name('transaksi.selesai');
+        Route::post('/transaksi/ulasan', [UlasanController::class, 'store'])->name('ulasan.store');
+
+        // REWARDS
+        Route::get('/reward', [App\Http\Controllers\Pelanggan\RewardController::class, 'index'])->name('reward.index');
+        Route::get('/reward/saya', [App\Http\Controllers\Pelanggan\RewardController::class, 'myRewards'])->name('reward.my-rewards');
+        Route::get('/reward/{id}', [App\Http\Controllers\Pelanggan\RewardController::class, 'show'])->name('reward.show');
+        Route::post('/reward/{id}/claim', [App\Http\Controllers\Pelanggan\RewardController::class, 'claim'])->name('reward.claim');
     });
 
     // PROFILE

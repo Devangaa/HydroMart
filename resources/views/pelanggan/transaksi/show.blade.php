@@ -3,7 +3,15 @@
 @section('title', 'Detail Transaksi #' . $transaksi->order_id)
 
 @section('content')
-<div class="w-full min-h-screen bg-gray-50/50 pb-20" x-data="{ showCancelModal: false }">
+<div class="w-full min-h-screen bg-gray-50/50 pb-20" x-data="{ 
+    showCancelModal: false,
+    showReviewModal: false,
+    showConfirmModal: false,
+    isSubmittingReview: false,
+    selectedItem: { id: null, name: '', type: '' },
+    rating: 5,
+    komentar: ''
+}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {{-- Header --}}
@@ -80,6 +88,29 @@
                         </div>
                     </div>
                 </div>
+                @elseif($transaksi->status == 'Dikirim')
+                <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-[1.5rem] md:rounded-[2rem] border border-green-100 p-5 md:p-8" data-aos="fade-up">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-green-200/50 rounded-xl md:rounded-2xl flex items-center justify-center text-green-700 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-base md:text-lg font-black text-gray-900">Pesanan Dalam Pengiriman</h3>
+                            <p class="text-xs md:text-sm text-gray-600 mt-1 mb-4 md:mb-6 leading-relaxed">Paket Anda sedang dalam perjalanan. Jika paket sudah Anda terima dengan baik, silakan konfirmasi pesanan selesai.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <form action="{{ route('transaksi.selesai', $transaksi->order_id) }}" method="POST" class="w-full sm:w-auto">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-black rounded-xl hover:bg-green-700 transition text-sm shadow-lg shadow-green-100 w-full text-center">
+                                        Pesanan Diterima
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endif
 
                 {{-- Daftar Produk --}}
@@ -115,10 +146,45 @@
                                         <p class="text-[10px] md:text-xs text-amber-600 mt-1 italic font-medium">"{{ $detail->catatan }}"</p>
                                     @endif
                                 </div>
-                                <div class="text-right shrink-0">
-                                    <p class="text-xs md:text-sm font-black text-gray-900">Rp{{ number_format($detail->total_harga, 0, ',', '.') }}</p>
-                                </div>
                             </div>
+
+                            {{-- Review Section --}}
+                            @if($detail->ulasan)
+                            <div class="mt-4 ml-14 md:ml-26 bg-gray-50 rounded-2xl p-4 border border-gray-100" data-aos="fade-up">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex text-amber-400">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ $i <= $detail->ulasan->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-[10px] text-gray-400 font-bold uppercase">{{ $detail->ulasan->tanggal_ulasan->format('d M Y') }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-700 leading-relaxed font-medium">{{ $detail->ulasan->komentar }}</p>
+                                
+                                @if($detail->ulasan->balasan)
+                                <div class="mt-3 pt-3 border-t border-gray-200/50">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black text-green-600 uppercase">Balasan Toko</span>
+                                        <span class="text-[10px] text-gray-400 font-medium">{{ $detail->ulasan->tanggal_balasan->format('d M Y') }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">{{ $detail->ulasan->balasan }}</p>
+                                </div>
+                                @endif
+                            </div>
+                            @elseif($transaksi->status == 'Selesai')
+                            <div class="mt-4 ml-14 md:ml-26" data-aos="fade-up">
+                                <button @click="selectedItem = { id: {{ $detail->id }}, name: '{{ addslashes($detail->produk->nama_produk) }}', type: 'produk' }; showReviewModal = true; rating = 5; komentar = ''" class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-600 font-bold rounded-xl hover:bg-green-100 transition text-xs border border-green-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                    Beri Ulasan
+                                </button>
+                            </div>
+                            @endif
                         @endforeach
 
                         @foreach($transaksi->detailLayanans as $detail)
@@ -143,10 +209,45 @@
                                         <p class="text-[10px] md:text-xs text-amber-600 mt-1 italic font-medium">"{{ $detail->catatan }}"</p>
                                     @endif
                                 </div>
-                                <div class="text-right shrink-0">
-                                    <p class="text-xs md:text-sm font-black text-gray-900">Rp{{ number_format($detail->total_harga, 0, ',', '.') }}</p>
-                                </div>
                             </div>
+
+                            {{-- Review Section --}}
+                            @if($detail->ulasan)
+                            <div class="mt-4 ml-14 md:ml-26 bg-gray-50 rounded-2xl p-4 border border-gray-100" data-aos="fade-up">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex text-amber-400">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ $i <= $detail->ulasan->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-[10px] text-gray-400 font-bold uppercase">{{ $detail->ulasan->tanggal_ulasan->format('d M Y') }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-700 leading-relaxed font-medium">{{ $detail->ulasan->komentar }}</p>
+                                
+                                @if($detail->ulasan->balasan)
+                                <div class="mt-3 pt-3 border-t border-gray-200/50">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black text-green-600 uppercase">Balasan Toko</span>
+                                        <span class="text-[10px] text-gray-400 font-medium">{{ $detail->ulasan->tanggal_balasan->format('d M Y') }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">{{ $detail->ulasan->balasan }}</p>
+                                </div>
+                                @endif
+                            </div>
+                            @elseif($transaksi->status == 'Selesai')
+                            <div class="mt-4 ml-14 md:ml-26" data-aos="fade-up">
+                                <button @click="selectedItem = { id: {{ $detail->id }}, name: '{{ addslashes($detail->layanan->nama_layanan) }}', type: 'layanan' }; showReviewModal = true; rating = 5; komentar = ''" class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-600 font-bold rounded-xl hover:bg-green-100 transition text-xs border border-green-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                    Beri Ulasan
+                                </button>
+                            </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -211,14 +312,16 @@
                                 </div>
                                 <div class="w-[calc(100%-4rem)] md:w-full ml-4 md:ml-8 p-4 rounded-2xl {{ $index === 0 ? 'bg-green-50 border border-green-100 shadow-sm' : 'bg-gray-50 border border-gray-100' }} transition-all duration-300 hover:shadow-md">
                                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-1 mb-1">
-                                        <div class="font-bold text-gray-900 text-xs md:text-sm leading-tight">{{ $history['desc'] }}</div>
-                                        <time class="font-bold {{ $index === 0 ? 'text-green-600' : 'text-gray-400' }} text-[10px] md:text-xs whitespace-nowrap">{{ \Carbon\Carbon::parse($history['date'])->format('d M Y, H:i') }}</time>
+                                        <div class="font-bold text-gray-900 text-xs md:text-sm leading-tight">{{ $history['description'] ?? $history['desc'] ?? '-' }}</div>
+                                        <time class="font-bold {{ $index === 0 ? 'text-green-600' : 'text-gray-400' }} text-[10px] md:text-xs whitespace-nowrap">
+                                            {{ \Carbon\Carbon::parse($history['date'] ?? $history['time'] ?? now())->format('d M Y, H:i') }}
+                                        </time>
                                     </div>
                                     <div class="text-gray-500 text-[10px] md:text-xs font-medium flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         </svg>
-                                        {{ $history['location'] ?: 'Lokasi tidak spesifik' }}
+                                        {{ $history['location'] ?? 'Lokasi tidak spesifik' }}
                                     </div>
                                 </div>
                             </div>
@@ -287,6 +390,102 @@
             </div>
         </div>
     </div>
+
+    {{-- Review Form Modal --}}
+    <template x-teleport="body">
+        <div x-show="showReviewModal" 
+             class="fixed inset-0 z-[9998] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+             style="display: none;">
+            
+            <div @click.away="showReviewModal = false" 
+                 class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl">
+                
+                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    Beri Ulasan
+                </h3>
+
+                <div class="mb-6">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Nama Produk/Layanan</p>
+                    <p class="text-sm font-bold text-gray-900" x-text="selectedItem.name"></p>
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rating</p>
+                    <div class="flex gap-2">
+                        <template x-for="i in 5">
+                            <button @click="rating = i" type="button" class="transition-all transform hover:scale-110 active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" :class="i <= rating ? 'text-yellow-400' : 'text-gray-200'" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Komentar</p>
+                    <textarea x-model="komentar" rows="3" class="w-full px-5 py-4 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:border-green-500 focus:ring-0 text-sm transition-all placeholder:text-gray-400" placeholder="Berikan pendapat Anda..."></textarea>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button @click="showConfirmModal = true; showReviewModal = false" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-green-100 active:scale-95">
+                        Kirim Ulasan
+                    </button>
+                    <button @click="showReviewModal = false" type="button" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all active:scale-95">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {{-- Review Confirmation Modal --}}
+    <template x-teleport="body">
+        <div x-show="showConfirmModal" 
+             class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+             style="display: none;">
+            
+            <div @click.away="showConfirmModal = false" 
+                 class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl text-center">
+                
+                <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Tambah Review?</h3>
+                <p class="text-gray-500 text-sm mb-8 leading-relaxed">Yakin ingin menambah review? Ulasan yang sudah dikirim tidak dapat diubah kembali.</p>
+
+                <div class="flex flex-col gap-3">
+                    <form action="{{ route('ulasan.store') }}" method="POST" @submit="isSubmittingReview = true">
+                        @csrf
+                        <input type="hidden" name="id_detailtransaksi" :value="selectedItem.id">
+                        <input type="hidden" name="type" :value="selectedItem.type">
+                        <input type="hidden" name="rating" :value="rating">
+                        <input type="hidden" name="komentar" :value="komentar">
+                        <button type="submit" 
+                                :disabled="isSubmittingReview"
+                                :class="isSubmittingReview ? 'opacity-70 cursor-not-allowed' : 'hover:bg-green-700 active:scale-95 shadow-lg shadow-green-100'"
+                                class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+                            <svg x-show="isSubmittingReview" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" x-cloak>
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="isSubmittingReview ? 'Mengirim...' : 'Ya, Kirim'"></span>
+                        </button>
+                    </form>
+                    
+                    <button @click="showConfirmModal = false; showReviewModal = false" type="button" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all active:scale-95">
+                        Tidak
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
 
     {{-- Cancel Confirmation Modal --}}
     <template x-teleport="body">

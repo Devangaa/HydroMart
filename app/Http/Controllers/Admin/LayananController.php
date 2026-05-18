@@ -15,7 +15,9 @@ class LayananController extends Controller
     {
         $status = $request->query('status');
 
-        $query = Layanan::query();
+        $query = Layanan::query()->withAvg('ulasans', 'rating')->with(['ulasans' => function ($q) {
+            $q->where('isdelete', false)->with('user');
+        }]);
 
         if ($request->search) {
             $query->where('nama_layanan', 'like', '%'.$request->search.'%');
@@ -27,7 +29,19 @@ class LayananController extends Controller
             $query->where('is_delete', 0);
         }
 
-        $layanan = $query->latest()->paginate(10);
+        // Sorting logic
+        $sortBy = $request->get('sort_by', 'created_at');
+        $order = $request->get('order', 'desc');
+
+        $allowedSorts = ['ulasans_avg_rating', 'nama_layanan', 'harga', 'created_at'];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $order);
+        } else {
+            $query->latest();
+        }
+
+        $layanan = $query->paginate(10)->withQueryString();
 
         $stats = [
             'total' => Layanan::count(),

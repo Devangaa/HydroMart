@@ -44,4 +44,19 @@ class Product extends Model
     {
         return str_replace(' ', '-', strtolower($this->nama_produk));
     }
+
+    public function ulasans()
+    {
+        return $this->hasMany(Ulasan::class, 'id_produk');
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return round($this->ulasans()->active()->avg('rating'), 1) ?: 0;
+    }
+
+    public function getTotalUlasanAttribute()
+    {
+        return $this->ulasans()->active()->count();
+    }
 }

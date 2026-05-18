@@ -3,7 +3,14 @@
 @section('title', 'Detail Transaksi #' . $transaksi->order_id)
 
 @section('content')
-<div class="w-full min-h-screen bg-gray-50/50 pb-20" x-data="{ showCancelModal: false, showResiModal: {{ $errors->hasAny(['nomor_resi', 'ekspedisi']) ? 'true' : 'false' }} }">
+<div class="w-full min-h-screen bg-gray-50/50 pb-20" x-data="{ 
+    showCancelModal: false, 
+    showResiModal: {{ $errors->hasAny(['nomor_resi', 'ekspedisi']) ? 'true' : 'false' }},
+    showReplyModal: false,
+    isSubmittingReply: false,
+    replyTarget: { id: null, name: '', comment: '' },
+    replyConfirmModal: false
+}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {{-- Header --}}
@@ -139,6 +146,41 @@
                                     <p class="text-xs md:text-sm font-black text-gray-900">Rp{{ number_format($detail->total_harga, 0, ',', '.') }}</p>
                                 </div>
                             </div>
+
+                            {{-- Review Section --}}
+                            @if($detail->ulasan)
+                            <div class="mt-4 ml-14 md:ml-26 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex text-amber-400">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ $i <= $detail->ulasan->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-[10px] text-gray-400 font-bold uppercase">{{ $detail->ulasan->tanggal_ulasan->format('d M Y') }}</span>
+                                    </div>
+                                    @if(!$detail->ulasan->balasan)
+                                        <button @click="showReplyModal = true; replyTarget = { id: {{ $detail->ulasan->id }}, name: '{{ addslashes($detail->produk->nama_produk) }}', comment: '{{ addslashes($detail->ulasan->komentar) }}' }" 
+                                            class="text-[10px] font-bold text-green-600 hover:text-green-700 uppercase tracking-wider">
+                                            Beri Balasan
+                                        </button>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-700 leading-relaxed font-medium">{{ $detail->ulasan->komentar }}</p>
+                                
+                                @if($detail->ulasan->balasan)
+                                <div class="mt-3 pt-3 border-t border-gray-200/50">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black text-green-600 uppercase">Balasan Admin</span>
+                                        <span class="text-[10px] text-gray-400 font-medium">{{ $detail->ulasan->tanggal_balasan->format('d M Y') }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">{{ $detail->ulasan->balasan }}</p>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
                         @endforeach
 
                         @foreach($transaksi->detailLayanans as $detail)
@@ -167,6 +209,41 @@
                                     <p class="text-xs md:text-sm font-black text-gray-900">Rp{{ number_format($detail->total_harga, 0, ',', '.') }}</p>
                                 </div>
                             </div>
+
+                            {{-- Review Section --}}
+                            @if($detail->ulasan)
+                            <div class="mt-4 ml-14 md:ml-26 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex text-amber-400">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 {{ $i <= $detail->ulasan->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-[10px] text-gray-400 font-bold uppercase">{{ $detail->ulasan->tanggal_ulasan->format('d M Y') }}</span>
+                                    </div>
+                                    @if(!$detail->ulasan->balasan)
+                                        <button @click="showReplyModal = true; replyTarget = { id: {{ $detail->ulasan->id }}, name: '{{ addslashes($detail->layanan->nama_layanan) }}', comment: '{{ addslashes($detail->ulasan->komentar) }}' }" 
+                                            class="text-[10px] font-bold text-green-600 hover:text-green-700 uppercase tracking-wider">
+                                            Beri Balasan
+                                        </button>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-700 leading-relaxed font-medium">"{{ $detail->ulasan->komentar }}"</p>
+                                
+                                @if($detail->ulasan->balasan)
+                                <div class="mt-3 pt-3 border-t border-gray-200/50">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black text-green-600 uppercase">Balasan Admin</span>
+                                        <span class="text-[10px] text-gray-400 font-medium">{{ $detail->ulasan->tanggal_balasan->format('d M Y') }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">"{{ $detail->ulasan->balasan }}"</p>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -232,14 +309,16 @@
                                 </div>
                                 <div class="w-[calc(100%-4rem)] md:w-full ml-4 md:ml-8 p-4 rounded-2xl {{ $index === 0 ? 'bg-green-50 border border-green-100 shadow-sm' : 'bg-gray-50 border border-gray-100' }} transition-all duration-300 hover:shadow-md">
                                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-1 mb-1">
-                                        <div class="font-bold text-gray-900 text-xs md:text-sm leading-tight">{{ $history['desc'] }}</div>
-                                        <time class="font-bold {{ $index === 0 ? 'text-green-600' : 'text-gray-400' }} text-[10px] md:text-xs whitespace-nowrap">{{ \Carbon\Carbon::parse($history['date'])->format('d M Y, H:i') }}</time>
+                                        <div class="font-bold text-gray-900 text-xs md:text-sm leading-tight">{{ $history['description'] ?? $history['desc'] ?? '-' }}</div>
+                                        <time class="font-bold {{ $index === 0 ? 'text-green-600' : 'text-gray-400' }} text-[10px] md:text-xs whitespace-nowrap">
+                                            {{ \Carbon\Carbon::parse($history['date'] ?? $history['time'] ?? now())->format('d M Y, H:i') }}
+                                        </time>
                                     </div>
                                     <div class="text-gray-500 text-[10px] md:text-xs font-medium flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         </svg>
-                                        {{ $history['location'] ?: 'Lokasi tidak spesifik' }}
+                                        {{ $history['location'] ?? 'Lokasi tidak spesifik' }}
                                     </div>
                                 </div>
                             </div>
@@ -460,6 +539,103 @@
                     
                     <button @click="showCancelModal = false" type="button" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all active:scale-95">
                         Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+    {{-- Reply Review Modal --}}
+    <template x-teleport="body">
+        <div x-show="showReplyModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+             style="display: none;">
+            
+            <div @click.away="showReplyModal = false" 
+                 x-show="showReplyModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl">
+                
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Balas Ulasan</h3>
+                <p class="text-gray-500 text-xs mb-6">Memberikan tanggapan untuk ulasan <span class="font-bold text-green-600" x-text="replyTarget.name"></span></p>
+
+                <div class="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Komentar Pelanggan</p>
+                    <p class="text-xs text-gray-600" x-text="replyTarget.comment"></p>
+                </div>
+
+                <form :action="'{{ url('/kelola-transaksi/ulasan') }}/' + replyTarget.id + '/reply'" method="POST" id="replyForm" @submit.prevent="replyConfirmModal = true">
+                    @csrf
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Tulis Balasan Anda</label>
+                            <textarea name="balasan" required rows="4" placeholder="Terima kasih telah berbelanja..." 
+                                class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 text-sm focus:border-green-500 focus:ring-0 transition-colors"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 mt-8">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-green-100 active:scale-95">
+                            Kirim Balasan
+                        </button>
+                        <button @click="showReplyModal = false" type="button" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all active:scale-95">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    {{-- Reply Confirmation Modal --}}
+    <template x-teleport="body">
+        <div x-show="replyConfirmModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+             style="display: none;">
+            
+            <div @click.away="replyConfirmModal = false" 
+                 x-show="replyConfirmModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl text-center">
+                
+                <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Tambah Balasan?</h3>
+                <p class="text-gray-500 text-sm mb-8 leading-relaxed">Yakin ingin menambah balasan? Balasan yang sudah dikirim tidak dapat diubah kembali.</p>
+
+                <div class="flex flex-col gap-3">
+                    <button @click="if(!isSubmittingReply) { isSubmittingReply = true; document.getElementById('replyForm').submit(); }" 
+                            :disabled="isSubmittingReply"
+                            :class="isSubmittingReply ? 'opacity-70 cursor-not-allowed' : 'hover:bg-green-700 active:scale-95 shadow-lg shadow-green-100'"
+                            class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+                        <svg x-show="isSubmittingReply" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" x-cloak>
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span x-text="isSubmittingReply ? 'Mengirim...' : 'Ya, Kirim'"></span>
+                    </button>
+                    
+                    <button @click="replyConfirmModal = false" type="button" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-2xl transition-all active:scale-95">
+                        Tidak
                     </button>
                 </div>
             </div>

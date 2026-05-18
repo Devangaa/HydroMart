@@ -51,4 +51,19 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Kecamatan::class);
     }
+
+    public function ulasans()
+    {
+        return $this->hasMany(Ulasan::class, 'id_akun');
+    }
+
+    public function penukaranRewards()
+    {
+        return $this->hasMany(PenukaranReward::class, 'id_akun');
+    }
+
+    public function riwayatPoins()
+    {
+        return $this->hasMany(RiwayatPoin::class, 'id_akun');
+    }
 }

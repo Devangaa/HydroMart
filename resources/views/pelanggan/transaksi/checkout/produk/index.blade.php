@@ -43,8 +43,95 @@
             $photoUrl = $productFoto ? asset('uploads/produk/' . $productFoto) : 'https://ui-avatars.com/api/?name=' . urlencode($product->nama_produk);
         @endphp
 
-        <form action="{{ route('checkout.produk.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form action="{{ route('checkout.produk.store') }}" method="POST" 
+              x-data="checkoutSummary({{ $grandTotal }})"
+              class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             @csrf
+            
+            {{-- Reward Selection Modal --}}
+            <div id="rewardModal" class="fixed inset-0 z-[9999] overflow-y-auto" x-show="showRewardModal" x-cloak>
+                <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+                    <div class="fixed inset-0 transition-opacity bg-black/40 backdrop-blur-sm" @click="showRewardModal = false"></div>
+
+                    <div class="relative inline-block w-full max-w-lg overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-[2.5rem]"
+                         x-show="showRewardModal" 
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100">
+                        
+                        <div class="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                            <div>
+                                <h3 class="text-xl font-black text-gray-900">Pilih Reward</h3>
+                                <p class="text-xs text-gray-400 font-bold mt-1">Gunakan reward yang Anda miliki</p>
+                            </div>
+                            <button type="button" @click="showRewardModal = false" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="p-8 max-h-[60vh] overflow-y-auto space-y-8 custom-scrollbar">
+                            {{-- Reward Bisa Digunakan --}}
+                            <div>
+                                <h4 class="text-[10px] font-black text-green-600 uppercase tracking-[0.2em] mb-4">Tersedia</h4>
+                                <div class="space-y-3">
+                                    <template x-for="reward in availableRewards.filter(r => subtotal >= r.reward.minimal_pembelian)" :key="reward.id">
+                                        <button type="button" @click="selectReward(reward)" 
+                                                class="w-full flex items-center gap-4 p-4 rounded-2xl border border-gray-100 hover:border-green-500 hover:bg-green-50/30 transition-all text-left group">
+                                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-black text-gray-900" x-text="reward.reward.nama_reward"></p>
+                                                <p class="text-xs font-bold text-green-600">Potongan Rp<span x-text="formatCurrency(reward.reward.diskon)"></span></p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[9px] text-gray-400 font-bold uppercase mb-0.5">Berlaku s/d</p>
+                                                <p class="text-[10px] font-black text-gray-600" x-text="new Date(reward.batas_berlaku).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})"></p>
+                                            </div>
+                                        </button>
+                                    </template>
+                                    <template x-if="availableRewards.filter(r => subtotal >= r.reward.minimal_pembelian).length === 0">
+                                        <p class="text-center py-4 text-xs text-gray-400 font-medium italic">Tidak ada reward yang memenuhi syarat minimal belanja</p>
+                                    </template>
+                                </div>
+                            </div>
+
+                            {{-- Reward Belum Memenuhi Syarat --}}
+                            <div x-show="availableRewards.filter(r => subtotal < r.reward.minimal_pembelian).length > 0">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Belum Memenuhi Syarat</h4>
+                                <div class="space-y-3">
+                                    <template x-for="reward in availableRewards.filter(r => subtotal < r.reward.minimal_pembelian)" :key="reward.id">
+                                        <div class="w-full flex items-center gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50/50 opacity-60 filter grayscale text-left">
+                                            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-black text-gray-900" x-text="reward.reward.nama_reward"></p>
+                                                <p class="text-xs font-bold text-red-500">Min. belanja Rp<span x-text="formatCurrency(reward.reward.minimal_pembelian)"></span></p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[9px] font-black text-red-400 uppercase">Kurang Rp<span x-text="formatCurrency(reward.reward.minimal_pembelian - subtotal)"></span></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-8 bg-gray-50 border-t border-gray-100">
+                            <button type="button" @click="showRewardModal = false" class="w-full py-4 bg-white border border-gray-200 text-gray-600 font-bold rounded-2xl hover:bg-gray-100 transition shadow-sm">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {{-- Kolom Utama (Kiri) --}}
             <div class="lg:col-span-2 space-y-6">
@@ -120,14 +207,14 @@
                                         
                                         @if($mode === 'buy_now')
                                             <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
-                                                <button type="button" onclick="let qty = document.getElementById('item-qty'); qty.value = Math.max(1, parseInt(qty.value) - 1); updateTotal({{ $item->product->harga }});"
+                                                <button type="button" onclick="let qty = document.getElementById('item-qty'); qty.value = Math.max(1, parseInt(qty.value) - 1); updateTotal({{ $item->product->harga }}, {{ $item->product->berat }});"
                                                         class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-green-600 rounded-lg transition-all">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
                                                 </button>
                                                 <input type="number" name="items[{{ $index }}][jumlah]" id="item-qty" value="{{ $item->qty }}" min="1" max="{{ $item->product->jumlah_stok }}"
                                                        class="w-10 text-center bg-transparent border-none focus:ring-0 text-sm font-black text-gray-900 px-0"
-                                                       oninput="updateTotal({{ $item->product->harga }})">
-                                                <button type="button" onclick="let qty = document.getElementById('item-qty'); qty.value = Math.min({{ $item->product->jumlah_stok }}, parseInt(qty.value) + 1); updateTotal({{ $item->product->harga }});"
+                                                       oninput="updateTotal({{ $item->product->harga }}, {{ $item->product->berat }})">
+                                                <button type="button" onclick="let qty = document.getElementById('item-qty'); qty.value = Math.min({{ $item->product->jumlah_stok }}, parseInt(qty.value) + 1); updateTotal({{ $item->product->harga }}, {{ $item->product->berat }});"
                                                         class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-green-600 rounded-lg transition-all">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                                 </button>
@@ -172,6 +259,65 @@
                                 </div>
                             </div>
                         @endif
+                    </div>
+                </div>
+
+                {{-- Reward Selection Card --}}
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-8 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-100 text-amber-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Reward & Voucher</h3>
+                                <p class="text-gray-400 text-xs font-medium">Gunakan reward untuk mendapatkan potongan harga</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8">
+                        <input type="hidden" name="id_penukaran_reward" :value="rewardId">
+                        
+                        <template x-if="!rewardId">
+                            <button type="button" @click="showRewardModal = true" 
+                                    class="w-full flex items-center justify-between p-4 bg-gray-50 border border-dashed border-gray-200 rounded-2xl hover:bg-amber-50/50 hover:border-amber-200 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-gray-400 group-hover:text-amber-500 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-500 group-hover:text-amber-700">Pilih Reward Pelanggan</span>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </template>
+
+                        <template x-if="rewardId">
+                            <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-amber-600 shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-black text-amber-900" x-text="rewardName"></h4>
+                                        <p class="text-xs font-bold text-amber-600">Potongan Rp<span x-text="formatCurrency(rewardDiscount)"></span></p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="removeReward()" class="p-2 text-amber-400 hover:text-red-500 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
@@ -254,7 +400,7 @@
                                                 <p class="px-4 py-3 text-sm text-gray-400 text-center">Tidak ditemukan</p>
                                             </template>
                                             <template x-for="opt in filteredOptions" :key="opt.id">
-                                                <button type="button" @click="selected = opt.id; selectedName = opt.name; open = false; fetchOngkirAjax(opt.id, {{ $totalWeight }}, {{ $grandTotal }}, '{{ rtrim((string)parse_url(url('/'), PHP_URL_PATH), '/') }}');"
+                                                <button type="button" @click="selected = opt.id; selectedName = opt.name; open = false; fetchOngkirAjax(opt.id, getCurrentWeight(), getCurrentSubtotal(), '{{ rtrim((string)parse_url(url('/'), PHP_URL_PATH), '/') }}');"
                                                         class="w-full text-left px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-green-50 hover:text-green-600 transition" x-text="opt.name"></button>
                                             </template>
                                         </div>
@@ -367,16 +513,25 @@
                     <div class="p-6 space-y-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Subtotal</span>
-                            <span class="font-bold text-gray-900" id="subtotal">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                            <span class="font-bold text-gray-900" x-text="'Rp' + formatCurrency(subtotal)"></span>
                         </div>
+                        <template x-if="rewardDiscount > 0">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Reward</span>
+                                <span class="font-bold text-amber-600" x-text="'- Rp' + formatCurrency(rewardDiscount)"></span>
+                            </div>
+                        </template>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Ongkir</span>
-                            <span class="font-bold text-green-600" id="ongkir-text">Pilih Lokasi</span>
+                            <span class="font-bold text-green-600" x-text="ongkirText"></span>
                         </div>
                         <hr class="border-gray-100">
-                        <div class="flex justify-between">
-                            <span class="font-bold text-gray-900">Total</span>
-                            <span class="text-xl font-black text-green-600" id="total">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <span class="font-bold text-gray-900 block">Total Pembayaran</span>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Mendapat <span x-text="Math.max(0, Math.floor((subtotal - rewardDiscount) / 10000))"></span> Poin</span>
+                            </div>
+                            <span class="text-xl font-black text-green-600" x-text="'Rp' + formatCurrency(finalTotal)"></span>
                         </div>
                     </div>
                 </div>
@@ -484,6 +639,7 @@
                     Buat Pesanan
                 </button>
             </div>
+
         </form>
     </div>
 </div>
@@ -494,66 +650,119 @@
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    function updateTotal(productPrice) {
-        // Only update total if we are in buy_now mode (where quantity is adjustable)
+    function getCurrentWeight() {
+        @if(isset($mode) && $mode === 'buy_now' && isset($items) && $items->count() > 0)
+            const qtyInput = document.getElementById('item-qty');
+            const qty = parseInt(qtyInput?.value) || 1;
+            return {{ $items->first()->product->berat }} * qty;
+        @else
+            return {{ $totalWeight }};
+        @endif
+    }
+
+    function getCurrentSubtotal() {
+        @if(isset($mode) && $mode === 'buy_now' && isset($items) && $items->count() > 0)
+            const qtyInput = document.getElementById('item-qty');
+            const qty = parseInt(qtyInput?.value) || 1;
+            return {{ $items->first()->product->harga }} * qty;
+        @else
+            return {{ $grandTotal }};
+        @endif
+    }
+
+    function updateTotal(productPrice, productWeight) {
         @if(isset($mode) && $mode === 'buy_now')
-            const qtyInput = document.querySelector('input[name="items[0][jumlah]"]');
+            const qtyInput = document.getElementById('item-qty');
             if (!qtyInput) return;
 
             const qty = parseInt(qtyInput.value) || 1;
             const subtotal = productPrice * qty;
-            const subtotalElement = document.getElementById('subtotal');
-            const totalElement = document.getElementById('total');
+            const totalWeight = (productWeight || 0) * qty;
             
-            if (subtotalElement) {
-                subtotalElement.textContent = `Rp${formatCurrency(subtotal)}`;
-            }
+            // Get Alpine component data
+            const summary = document.querySelector('[x-data*="checkoutSummary"]')._x_dataStack[0];
+            summary.updateSubtotal(subtotal);
             
-            // Recalculate grand total including ongkir
-            const ongkirText = document.getElementById('ongkir-text').textContent;
-            let currentOngkir = 0;
-            if (ongkirText !== 'Gratis' && ongkirText !== 'Pilih Lokasi' && ongkirText !== 'Menghitung...') {
-                currentOngkir = parseInt(ongkirText.replace(/[^\d]/g, '')) || 0;
-            }
+            // Recalculate ongkir if kecamatan is already selected
+            const kecamatanInput = document.querySelector('input[name="kecamatan_id"]');
+            const kecamatanId = kecamatanInput ? kecamatanInput.value : null;
             
-            if (totalElement) {
-                totalElement.textContent = `Rp${formatCurrency(subtotal + currentOngkir)}`;
+            if (kecamatanId) {
+                const basePath = '{{ rtrim((string)parse_url(url('/'), PHP_URL_PATH), '/') }}';
+                fetchOngkirAjax(kecamatanId, totalWeight, subtotal, basePath);
             }
         @endif
     }
 
     async function fetchOngkirAjax(kecamatanId, totalWeight, grandTotal, basePath) {
-        const ongkirText = document.getElementById('ongkir-text');
-        const totalText = document.getElementById('total');
+        // Get Alpine component data
+        const summary = document.querySelector('[x-data*="checkoutSummary"]')._x_dataStack[0];
         
-        ongkirText.textContent = 'Menghitung...';
-        ongkirText.classList.remove('text-green-600');
-        ongkirText.classList.add('text-gray-400');
+        summary.updateOngkir(0, 'Menghitung...');
 
         try {
             const response = await fetch(`${basePath}/cek-ongkir?kecamatan_id=${kecamatanId}&total_weight=${totalWeight}`);
             const data = await response.json();
 
             if (data.success) {
-                if (data.ongkir === 0) {
-                    ongkirText.textContent = 'Gratis';
-                    ongkirText.classList.add('text-green-600');
-                    ongkirText.classList.remove('text-gray-400', 'text-gray-900');
-                } else {
-                    ongkirText.textContent = data.formatted_ongkir;
-                    ongkirText.classList.add('text-gray-900');
-                    ongkirText.classList.remove('text-green-600', 'text-gray-400');
-                }
-
-                // Update Grand Total
-                const subtotal = grandTotal; // This should be updated if quantity changes
-                totalText.textContent = `Rp${formatCurrency(subtotal + data.ongkir)}`;
+                summary.updateOngkir(data.ongkir, data.ongkir === 0 ? 'Gratis' : data.formatted_ongkir);
             } else {
-                ongkirText.textContent = 'Gagal memuat';
+                summary.updateOngkir(0, 'Gagal memuat');
             }
         } catch (error) {
             console.error('Error fetching ongkir:', error);
-            ongkirText.textContent = 'Gagal memuat';
+            summary.updateOngkir(0, 'Gagal memuat');
+        }
+    }
+
+    // Alpine.js component for checkout summary and rewards
+    function checkoutSummary(initialSubtotal) {
+        return {
+            subtotal: initialSubtotal,
+            ongkir: 0,
+            ongkirText: 'Pilih Lokasi',
+            rewardId: '',
+            rewardDiscount: 0,
+            rewardName: '',
+            showRewardModal: false,
+            availableRewards: @json($availableRewards),
+
+            get finalTotal() {
+                return Math.max(0, this.subtotal - this.rewardDiscount + this.ongkir);
+            },
+
+            formatCurrency(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            },
+
+            selectReward(redemption) {
+                this.rewardId = redemption.id;
+                this.rewardDiscount = redemption.reward.diskon;
+                this.rewardName = redemption.reward.nama_reward;
+                this.showRewardModal = false;
+            },
+
+            removeReward() {
+                this.rewardId = '';
+                this.rewardDiscount = 0;
+                this.rewardName = '';
+            },
+
+            updateOngkir(amount, formatted) {
+                this.ongkir = amount;
+                this.ongkirText = formatted;
+            },
+
+            updateSubtotal(newSubtotal) {
+                this.subtotal = newSubtotal;
+                // Check if currently selected reward is still valid
+                if (this.rewardId) {
+                    const selected = this.availableRewards.find(r => r.id == this.rewardId);
+                    if (selected && this.subtotal < selected.reward.minimal_pembelian) {
+                        this.removeReward();
+                    }
+                }
+            }
         }
     }
 
@@ -700,9 +909,7 @@
                 this.notifyLocationChange();
                 
                 // Fetch Ongkir
-                const totalWeight = {{ $totalWeight }};
-                const grandTotal = {{ $grandTotal }};
-                fetchOngkirAjax(kec.id, totalWeight, grandTotal, basePath);
+                fetchOngkirAjax(kec.id, getCurrentWeight(), getCurrentSubtotal(), basePath);
             },
 
             notifyLocationChange() {
@@ -773,7 +980,7 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         @if(isset($mode) && $mode === 'buy_now' && isset($product))
-            updateTotal({{ $product->harga }});
+            updateTotal({{ $product->harga }}, {{ $product->berat }});
         @endif
     });
 </script>

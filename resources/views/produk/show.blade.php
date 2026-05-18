@@ -74,14 +74,14 @@
                     <h1 class="text-3xl font-black text-gray-900 mt-2 tracking-tight">{{ $product->nama_produk }}</h1>
                     
                     <div class="flex items-center gap-4 mt-4">
+                        @if($product->total_ulasan > 0)
                         <div class="flex items-center gap-1 text-yellow-400">
-                            @for($i=0; $i<5; $i++)
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                            @endfor
-                            <span class="text-gray-900 font-black text-sm ml-1">4.9</span>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <span class="text-gray-900 font-black text-sm ml-1">{{ number_format($product->average_rating, 1) }}</span>
                         </div>
-                        <span class="text-gray-400 text-sm font-bold">(128 ulasan)</span>
+                        <span class="text-gray-400 text-sm font-bold">({{ $product->total_ulasan }} ulasan)</span>
                         <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                        @endif
                         <span class="text-green-600 text-sm font-black">Stok: {{ $product->jumlah_stok }} {{ $product->unit }}</span>
                     </div>
                 </div>
@@ -203,33 +203,69 @@
                     <h2 class="text-xl font-black text-gray-900">Ulasan Pembeli</h2>
                 </div>
 
+                @if($product->total_ulasan > 0)
                 <div class="flex items-center gap-8 mb-10">
                     <div class="text-center">
-                        <p class="text-6xl font-black text-gray-900">4.9</p>
-                        <p class="text-xs font-bold text-gray-400">128 Ulasan</p>
+                        <p class="text-6xl font-black text-gray-900">{{ number_format($product->average_rating, 1) }}</p>
+                        <p class="text-xs font-bold text-gray-400">{{ $product->total_ulasan }} Ulasan</p>
                     </div>
                     
+                    @php
+                        $counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+                        foreach($product->ulasans as $ulasan) {
+                            if(isset($counts[$ulasan->rating])) $counts[$ulasan->rating]++;
+                        }
+                    @endphp
                     <div class="flex-1 space-y-2">
                         @foreach([5, 4, 3, 2, 1] as $star)
                         <div class="flex items-center gap-3">
                             <span class="text-[10px] font-black text-gray-400 w-2">{{ $star }}</span>
                             <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="bg-yellow-400 h-full rounded-full" style="width: {{ $star == 5 ? '85' : ($star == 4 ? '10' : '5') }}%"></div>
+                                <div class="bg-yellow-400 h-full rounded-full" style="width: {{ ($counts[$star] / $product->total_ulasan) * 100 }}%"></div>
                             </div>
                         </div>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="pb-6 border-b border-gray-50">
+                <div class="space-y-6 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                    @foreach($product->ulasans as $ulasan)
+                    <div class="pb-6 border-b border-gray-50 last:border-0">
                         <div class="flex justify-between mb-2">
-                            <p class="font-black text-sm text-gray-900">Novi Dian</p>
-                            <span class="text-[10px] font-bold text-gray-400">15 Januari 2026</span>
+                            <div>
+                                @php
+                                    $reviewerName = $ulasan->user->username ?? 'Pelanggan';
+                                    $nameLen = strlen($reviewerName);
+                                    $censoredName = $nameLen > 2 ? substr($reviewerName, 0, 1) . str_repeat('*', $nameLen - 2) . substr($reviewerName, -1) : substr($reviewerName, 0, 1) . '*';
+                                @endphp
+                                <p class="font-black text-sm text-gray-900">{{ $censoredName }}</p>
+                                <div class="flex items-center gap-0.5 mt-0.5">
+                                    @for($i=1; $i<=5; $i++)
+                                        <svg class="w-2.5 h-2.5 {{ $i <= $ulasan->rating ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                    @endfor
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold text-gray-400">{{ \Carbon\Carbon::parse($ulasan->tanggal_ulasan)->locale('id')->translatedFormat('d F Y') }}</span>
                         </div>
-                        <p class="text-xs text-gray-500 leading-relaxed font-medium">Seladanya sangat enak sekali dan segar. Respon admin juga cepat!</p>
+                        <p class="text-xs text-gray-500 leading-relaxed font-medium">{{ $ulasan->komentar ?: 'Tidak ada komentar.' }}</p>
+                        
+                        @if($ulasan->balasan)
+                        <div class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Balasan Admin</p>
+                            <p class="text-xs text-gray-500 leading-relaxed font-medium">{{ $ulasan->balasan }}</p>
+                        </div>
+                        @endif
                     </div>
+                    @endforeach
                 </div>
+                @else
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                    </div>
+                    <p class="text-gray-400 font-bold text-sm">Belum ada ulasan untuk produk ini.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>

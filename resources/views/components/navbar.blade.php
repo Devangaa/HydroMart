@@ -57,9 +57,11 @@
                                     Pesanan Saya
                                 </a>
 
-                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89c1.23.85 2.73 1.34 4.4 1.34s3.17-.49 4.4-1.34"/></svg>
-                                    Reward
+                                <a href="{{ route('reward.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                    </svg>
+                                    Reward Saya
                                 </a>
                             @endif
 
@@ -141,7 +143,7 @@
                 
                 @if(auth()->user()->role == 'pelanggan')
                     <a href="{{ route('transaksi.history') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Pesanan Saya</a>
-                    <a href="#" class="block text-gray-600 font-medium hover:text-green-600 py-2">Reward Saya</a>
+                    <a href="{{ route('reward.index') }}" class="block text-gray-600 font-medium hover:text-green-600 py-2">Reward Saya</a>
                 @endif
                 
                 <button @click="showLogoutModal = true; mobileMenuOpen = false" class="w-full text-left text-red-500 font-bold py-2">Keluar</button>

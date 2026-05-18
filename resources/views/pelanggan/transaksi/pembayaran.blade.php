@@ -230,6 +230,19 @@
             (seconds < 10 ? "0" + seconds : seconds);
     }, 1000);
 
+    // Polling status pembayaran
+    const statusCheckInterval = setInterval(function() {
+        fetch("{{ route('transaksi.status-check', $transaksi->order_id) }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_processed) {
+                    clearInterval(statusCheckInterval);
+                    window.location.href = data.redirect_url;
+                }
+            })
+            .catch(error => console.error('Error checking status:', error));
+    }, 5000); // Cek setiap 5 detik
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             alert('Kode berhasil disalin!');

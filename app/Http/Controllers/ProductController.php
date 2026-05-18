@@ -36,7 +36,9 @@ class ProductController extends Controller
     public function show($slug)
     {
         // Cari product yang slug-nya cocok
-        $product = Product::where('slug', $slug)->where('is_delete', 0)->firstOrFail();
+        $product = Product::with(['ulasans' => function ($query) {
+            $query->active()->latest();
+        }, 'ulasans.user'])->where('slug', $slug)->where('is_delete', 0)->firstOrFail();
 
         abort_if(! $product, 404);
 
