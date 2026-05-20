@@ -98,8 +98,8 @@ flowchart TD
 ### 4) Halaman Checkout
 ![Screenshot Checkout](docs/assets/screenshots/04-checkout.png)
 
-### 5) Halaman Pembayaran
-![Screenshot Pembayaran](docs/assets/screenshots/05-pembayaran.png)
+### 5) Halaman Detail Transaksi
+![Screenshot Pembayaran](docs/assets/screenshots/05-detail-transaksi.png)
 
 ### 6) Dashboard Admin
 ![Screenshot Dashboard Admin](docs/assets/screenshots/06-dashboard-admin.png)
