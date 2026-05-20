@@ -215,10 +215,13 @@
     </div>
 </div>
 
-<div id="cart-config" class="hidden" data-config='@json([
-    "items" => $cartJson,
-    "updateUrl" => url("/keranjang/update"),
-])'></div>
+@php
+    $cartConfig = [
+        'items' => $cartJson,
+        'updateUrl' => url('/keranjang/update'),
+    ];
+@endphp
+<div id="cart-config" class="hidden" data-config="{{ json_encode($cartConfig) }}"></div>
 
 @push('scripts')
 <!--

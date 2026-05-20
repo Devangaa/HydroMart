@@ -657,7 +657,7 @@
         $checkoutProdukConfig['productWeight'] = $items->first()->product->berat;
     }
 @endphp
-<div id="checkout-produk-config" class="hidden" data-config='@json($checkoutProdukConfig)'></div>
+<div id="checkout-produk-config" class="hidden" data-config="{{ json_encode($checkoutProdukConfig) }}"></div>
 
 <!--
 <script>

@@ -206,10 +206,13 @@
     </div>
 </div>
 
-<div id="pembayaran-config" class="hidden" data-config='@json([
-    "expiryTime" => $transaksi->batas_pembayaran,
-    "statusCheckUrl" => route("transaksi.status-check", $transaksi->order_id),
-])'></div>
+@php
+    $pembayaranConfig = [
+        'expiryTime' => $transaksi->batas_pembayaran,
+        'statusCheckUrl' => route('transaksi.status-check', $transaksi->order_id),
+    ];
+@endphp
+<div id="pembayaran-config" class="hidden" data-config="{{ json_encode($pembayaranConfig) }}"></div>
 
 <!--
 <script>

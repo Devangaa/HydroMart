@@ -380,12 +380,15 @@
     </div>
 </div>
 
-<div id="checkout-layanan-config" class="hidden" data-config='@json([
-    "totalWeight" => $totalWeight,
-    "grandTotal" => $grandTotal,
-    "basePath" => rtrim((string) parse_url(url("/"), PHP_URL_PATH), "/"),
-    "useDistrictsApi" => false,
-])'></div>
+@php
+    $checkoutLayananConfig = [
+        'totalWeight' => $totalWeight,
+        'grandTotal' => $grandTotal,
+        'basePath' => rtrim((string) parse_url(url('/'), PHP_URL_PATH), '/'),
+        'useDistrictsApi' => false,
+    ];
+@endphp
+<div id="checkout-layanan-config" class="hidden" data-config="{{ json_encode($checkoutLayananConfig) }}"></div>
 
 <!--
 <script>
