@@ -1,60 +1,120 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HydroMart 2
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Sistem e-commerce Laravel untuk penjualan **produk** dan **layanan** dengan fitur checkout, pembayaran, tracking, dan reward pelanggan.
 
-## About Laravel
+[![Panduan Pull & Menjalankan](https://img.shields.io/badge/Lihat-Panduan%20Pull%20%26%20Menjalankan-0ea5e9?style=for-the-badge)](docs/RUNNING_GUIDE_WINDOWS.md)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tentang Sistem
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+HydroMart 2 dirancang untuk mendukung alur bisnis penjualan end-to-end:
+- autentikasi pengguna (register, login, forgot password OTP),
+- katalog produk dan layanan,
+- keranjang, checkout, dan ongkir,
+- pembayaran online (Midtrans) + COD,
+- tracking pengiriman,
+- reward poin dan penukaran reward,
+- dashboard admin untuk manajemen operasional.
 
-## Learning Laravel
+## Visual Arsitektur Alur
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```mermaid
+flowchart LR
+    A[Pelanggan] --> B[Frontend Laravel Blade]
+    B --> C[Controller]
+    C --> D[(MySQL)]
+    C --> E[Midtrans API]
+    C --> F[BinderByte API]
+    C --> G[Mail Service OTP]
+    H[Admin] --> B
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Peta Modul Utama
 
-## Contributing
+| Modul | Fungsi Inti | Aktor |
+|---|---|---|
+| Authentication | Login, Register, OTP Reset Password | Pelanggan/Admin |
+| Katalog Produk | Lihat produk, detail, ulasan | Pelanggan |
+| Katalog Layanan | Lihat layanan, detail, ulasan | Pelanggan |
+| Checkout & Transaksi | Checkout produk/layanan, ongkir, status order | Pelanggan |
+| Payment Gateway | Pembuatan pembayaran, callback Midtrans | Sistem |
+| Reward | Klaim reward dari poin, validasi masa berlaku | Pelanggan/Admin |
+| Admin Panel | Kelola produk/layanan/reward/transaksi/ulasan | Admin |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Alur Pengguna (Customer Journey)
 
-## Code of Conduct
+```mermaid
+flowchart TD
+    A[Register / Login] --> B[Browse Produk / Layanan]
+    B --> C[Tambah ke Keranjang / Buy Now]
+    C --> D[Checkout]
+    D --> E[Pilih Pembayaran]
+    E --> F{COD atau Online}
+    F -->|Online| G[Bayar via Midtrans]
+    F -->|COD| H[Menunggu Konfirmasi]
+    G --> I[Menunggu Konfirmasi]
+    H --> I
+    I --> J[Diproses]
+    J --> K[Dikirim]
+    K --> L[Selesai]
+    L --> M[Ulasan + Poin Reward]
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Peran Sistem
 
-## Security Vulnerabilities
+### Pelanggan
+- Kelola akun & password.
+- Belanja produk/layanan.
+- Checkout dan pilih metode pembayaran.
+- Pantau status transaksi dan tracking.
+- Klaim reward dan lihat riwayat penukaran.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Admin
+- Kelola produk dan layanan (CRUD + soft delete/restore).
+- Kelola reward.
+- Validasi dan update status transaksi.
+- Input resi, pantau pengiriman, balas ulasan.
 
-## License
+## Integrasi Eksternal
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Midtrans**: pembuatan transaksi pembayaran dan callback status pembayaran.
+- **BinderByte**: validasi serta tracking resi pengiriman.
+- **Mail/SMTP**: pengiriman OTP saat reset password.
 
-from novi cantik
+## Galeri Tampilan (Tempat Screenshot)
+
+> Ganti gambar placeholder berikut dengan screenshot asli web kamu.
+
+### 1) Halaman Beranda
+![Screenshot Beranda](docs/assets/screenshots/01-beranda.png)
+
+### 2) Halaman Detail Produk
+![Screenshot Detail Produk](docs/assets/screenshots/02-detail-produk.png)
+
+### 3) Halaman Keranjang
+![Screenshot Keranjang](docs/assets/screenshots/03-keranjang.png)
+
+### 4) Halaman Checkout
+![Screenshot Checkout](docs/assets/screenshots/04-checkout.png)
+
+### 5) Halaman Pembayaran
+![Screenshot Pembayaran](docs/assets/screenshots/05-pembayaran.png)
+
+### 6) Dashboard Admin
+![Screenshot Dashboard Admin](docs/assets/screenshots/06-dashboard-admin.png)
+
+## Struktur Folder Penting
+
+```text
+app/Http/Controllers/
+├── Auth/        # Login, register, forgot password
+├── Admin/       # Manajemen data operasional
+├── Pelanggan/   # Keranjang, transaksi, ulasan, reward
+└── Api/         # Callback Midtrans
+```
+
+## Dokumentasi Operasional
+
+- Panduan pull repository dan cara menjalankan di Windows:
+  - [docs/RUNNING_GUIDE_WINDOWS.md](docs/RUNNING_GUIDE_WINDOWS.md)
