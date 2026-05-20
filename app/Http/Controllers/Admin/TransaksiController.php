@@ -10,8 +10,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Modul: Admin - Manajemen Transaksi
+ * Fitur: Monitoring transaksi, update status/resi, tracking, dan balas ulasan.
+ */
 class TransaksiController extends Controller
 {
+    /**
+     * Bagian: Listing transaksi berdasarkan tab status.
+     */
     public function index(Request $request)
     {
         $tab = $request->get('tab', 'menunggu-pembayaran');
@@ -32,6 +39,10 @@ class TransaksiController extends Controller
         return view('admin.transaksi.index', compact('transaksis', 'tab'));
     }
 
+    /**
+     * Bagian: Detail transaksi admin.
+     * Mencakup logika tracking pengiriman dan regional lokal.
+     */
     public function show($order_id)
     {
         $transaksi = Transaksi::with(['user', 'kecamatan.city.province', 'detailProduks.produk', 'detailProduks.ulasan', 'detailLayanans.layanan', 'detailLayanans.ulasan'])
@@ -79,6 +90,9 @@ class TransaksiController extends Controller
         return view('admin.transaksi.show', compact('transaksi', 'isLocal', 'trackingData'));
     }
 
+    /**
+     * Bagian: Update status transaksi sesuai transisi yang valid.
+     */
     public function updateStatus(Request $request, $order_id)
     {
         $transaksi = Transaksi::where('order_id', $order_id)->firstOrFail();
@@ -114,6 +128,9 @@ class TransaksiController extends Controller
         return back()->with('success', "Status pesanan berhasil diubah menjadi $newStatus.");
     }
 
+    /**
+     * Bagian: Simpan/update resi dan validasi ke API tracking.
+     */
     public function updateResi(Request $request, $order_id)
     {
         $request->validate([
@@ -163,6 +180,9 @@ class TransaksiController extends Controller
         }
     }
 
+    /**
+     * Bagian: Balasan admin untuk ulasan pelanggan.
+     */
     public function replyUlasan(Request $request, $id)
     {
         $request->validate([
@@ -182,6 +202,9 @@ class TransaksiController extends Controller
         }
     }
 
+    /**
+     * Bagian: Helper data tracking mock untuk pengujian.
+     */
     private function getMockTrackingData($resi)
     {
         return [

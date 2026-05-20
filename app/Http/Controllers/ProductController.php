@@ -5,8 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+/**
+ * Modul: Katalog Produk (Publik)
+ * Fitur: Menampilkan daftar produk dan detail produk untuk pelanggan.
+ */
 class ProductController extends Controller
 {
+    /**
+     * Bagian: Listing produk.
+     * Alur: filter pencarian/kategori -> pagination -> kirim ke view.
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -33,6 +41,10 @@ class ProductController extends Controller
         return view('produk.index', compact('products', 'search', 'selectedCategory', 'categories'));
     }
 
+    /**
+     * Bagian: Detail produk.
+     * Alur: ambil produk + ulasan aktif -> ambil produk terkait.
+     */
     public function show($slug)
     {
         // Cari product yang slug-nya cocok

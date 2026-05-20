@@ -8,8 +8,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Modul: Profil Pengguna
+ * Fitur: Lihat dan kelola data profil akun yang sedang login.
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Bagian: Ringkasan profil pengguna.
+     */
     public function index()
     {
         $user = Auth::user();
@@ -17,6 +24,9 @@ class ProfileController extends Controller
         return view('profile.index', compact('user'));
     }
 
+    /**
+     * Bagian: Form edit profil.
+     */
     public function edit()
     {
         $user = Auth::user();
@@ -24,6 +34,10 @@ class ProfileController extends Controller
         return view('profile.edit', compact('user'));
     }
 
+    /**
+     * Bagian: Proses update data profil.
+     * Alur: validasi input -> simpan perubahan -> refresh sesi login.
+     */
     public function update(Request $request)
     {
         /** @var User $user */
@@ -76,6 +90,10 @@ class ProfileController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
 
+    /**
+     * Bagian: Proses update password akun.
+     * Alur: validasi password lama/baru -> simpan password hash baru.
+     */
     public function updatePassword(Request $request)
     {
         /** @var User $user */

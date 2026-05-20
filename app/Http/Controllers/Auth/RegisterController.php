@@ -7,13 +7,24 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Modul: Authentication
+ * Fitur: Registrasi akun pelanggan baru.
+ */
 class RegisterController extends Controller
 {
+    /**
+     * Bagian: Halaman form registrasi.
+     */
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
+    /**
+     * Bagian: Proses registrasi akun.
+     * Alur: validasi data -> simpan user baru -> arahkan ke login.
+     */
     public function register(Request $request)
     {
         $request->validate([

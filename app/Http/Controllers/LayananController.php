@@ -5,8 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Layanan;
 use Illuminate\Http\Request;
 
+/**
+ * Modul: Katalog Layanan (Publik)
+ * Fitur: Menampilkan daftar layanan dan detail layanan untuk pelanggan.
+ */
 class LayananController extends Controller
 {
+    /**
+     * Bagian: Listing layanan.
+     * Alur: filter pencarian -> pagination -> kirim ke view.
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -22,6 +30,9 @@ class LayananController extends Controller
         return view('layanan.index', compact('layanan', 'search'));
     }
 
+    /**
+     * Bagian: Detail layanan beserta ulasan aktif.
+     */
     public function show($slug)
     {
         // Cari product yang slug-nya cocok

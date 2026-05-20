@@ -7,10 +7,14 @@ use App\Models\Kecamatan;
 use App\Models\Province;
 use Illuminate\Routing\Controller;
 
+/**
+ * Modul: Referensi Wilayah
+ * Fitur: Menyediakan data provinsi, kota, dan kecamatan untuk dropdown dinamis.
+ */
 class WilayahController extends Controller
 {
     /**
-     * Get cities by province_id
+     * Bagian: Ambil daftar kota berdasarkan provinsi.
      */
     public function getCitiesByProvince($provinceId)
     {
@@ -23,7 +27,7 @@ class WilayahController extends Controller
     }
 
     /**
-     * Get cities by province_id for transaction
+     * Bagian: Ambil daftar kota untuk konteks transaksi.
      */
     public function getCitiesForTransaction($provinceId)
     {
@@ -37,7 +41,7 @@ class WilayahController extends Controller
     }
 
     /**
-     * Get kecamatan by city_id (untuk profil dan lainnya)
+     * Bagian: Ambil daftar kecamatan berdasarkan kota.
      */
     public function getKecamatanByCity($cityId)
     {
@@ -50,8 +54,7 @@ class WilayahController extends Controller
     }
 
     /**
-     * Get kecamatan by city_id untuk transaksi
-     * Hanya return kecamatan yang memiliki rajaongkir_id (sudah disinkronisasi)
+     * Bagian: Ambil daftar kecamatan untuk konteks transaksi.
      */
     public function getKecamatanByTransactionCity($cityId)
     {
@@ -64,7 +67,7 @@ class WilayahController extends Controller
     }
 
     /**
-     * Get all provinces (untuk initial dropdown akun/profil)
+     * Bagian: Ambil semua provinsi untuk akun/profil.
      */
     public function getProvinces()
     {
@@ -74,7 +77,7 @@ class WilayahController extends Controller
     }
 
     /**
-     * Get provinces untuk transaksi (hanya 6 provinsi yang diizinkan)
+     * Bagian: Ambil provinsi yang diizinkan untuk transaksi.
      */
     public function getProvincesForTransaction()
     {

@@ -8,10 +8,14 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Modul: Pelanggan - Keranjang
+ * Fitur: Menampilkan keranjang, tambah item, ubah jumlah, dan hapus item.
+ */
 class KeranjangController extends Controller
 {
     /**
-     * Tampilkan Halaman Keranjang
+     * Bagian: Halaman daftar item keranjang.
      */
     public function index()
     {
@@ -32,7 +36,7 @@ class KeranjangController extends Controller
     }
 
     /**
-     * Tambah Produk ke Keranjang
+     * Bagian: Tambah produk ke keranjang.
      */
     public function store(Request $request)
     {
@@ -75,7 +79,7 @@ class KeranjangController extends Controller
     }
 
     /**
-     * Update Jumlah Item (Real-time via AJAX)
+     * Bagian: Update jumlah item keranjang via AJAX.
      */
     public function update(Request $request, Keranjang $cart)
     {
@@ -107,7 +111,7 @@ class KeranjangController extends Controller
     }
 
     /**
-     * Hapus Item dari Keranjang
+     * Bagian: Hapus item dari keranjang.
      */
     public function destroy(Keranjang $cart)
     {

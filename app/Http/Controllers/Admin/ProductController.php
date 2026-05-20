@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
+/**
+ * Modul: Admin - Manajemen Produk
+ * Fitur: CRUD produk, upload gambar, filter/sort, soft delete, dan restore.
+ */
 class ProductController extends Controller
 {
+    /**
+     * Bagian: Listing produk admin beserta statistik.
+     */
     public function index(Request $request)
     {
         $categories = Product::distinct()->pluck('kategori');
@@ -59,11 +66,17 @@ class ProductController extends Controller
         return view('admin.produk.index', compact('products', 'stats', 'categories'));
     }
 
+    /**
+     * Bagian: Halaman tambah produk.
+     */
     public function create()
     {
         return view('admin.produk.create');
     }
 
+    /**
+     * Bagian: Simpan produk baru.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -123,6 +136,9 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan!');
     }
 
+    /**
+     * Bagian: Update produk atau restore produk terhapus.
+     */
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -207,6 +223,9 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil diperbarui!');
     }
 
+    /**
+     * Bagian: Soft delete produk.
+     */
     public function destroy($id)
     {
         $product = Product::findOrFail($id);

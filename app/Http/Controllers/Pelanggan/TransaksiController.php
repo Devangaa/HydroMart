@@ -24,8 +24,15 @@ use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\CoreApi;
 
+/**
+ * Modul: Pelanggan - Transaksi
+ * Fitur: Checkout produk/layanan, pembayaran Midtrans, tracking, dan histori transaksi.
+ */
 class TransaksiController extends Controller
 {
+    /**
+     * Bagian: Inisialisasi konfigurasi Midtrans SDK.
+     */
     public function __construct()
     {
         Config::$serverKey = config('midtrans.server_key');
@@ -34,6 +41,9 @@ class TransaksiController extends Controller
         Config::$is3ds = true;
     }
 
+    /**
+     * Bagian: Endpoint cek ongkir berdasarkan kecamatan dan total berat.
+     */
     public function cekOngkir(Request $request)
     {
         $request->validate([
@@ -50,6 +60,10 @@ class TransaksiController extends Controller
         ]);
     }
 
+    /**
+     * Bagian: Helper perhitungan ongkir.
+     * Catatan: beberapa kecamatan mendapat ongkir gratis.
+     */
     private function calculateOngkir($kecamatanId, $totalWeightGrams)
     {
         $kecamatan = Kecamatan::with('city')->findOrFail($kecamatanId);
@@ -73,6 +87,9 @@ class TransaksiController extends Controller
         return $ongkirPerKg * $weightInKg;
     }
 
+    /**
+     * Bagian: Checkout produk (buy now atau dari keranjang).
+     */
     public function checkout(Request $request)
     {
         $mode = $request->input('mode', 'buy_now');
@@ -150,6 +167,9 @@ class TransaksiController extends Controller
         ));
     }
 
+    /**
+     * Bagian: Checkout layanan.
+     */
     public function checkoutLayanan(Request $request)
     {
         $request->validate([
@@ -173,6 +193,10 @@ class TransaksiController extends Controller
         ));
     }
 
+    /**
+     * Bagian: Simpan transaksi produk.
+     * Alur: validasi -> hitung total/ongkir/diskon -> buat transaksi -> proses pembayaran.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -280,6 +304,9 @@ class TransaksiController extends Controller
         });
     }
 
+    /**
+     * Bagian: Simpan transaksi layanan.
+     */
     public function storeLayanan(Request $request)
     {
         $request->validate([
@@ -325,6 +352,9 @@ class TransaksiController extends Controller
         });
     }
 
+    /**
+     * Bagian: Helper pembuatan pembayaran Midtrans.
+     */
     private function generateMidtransPayment(Transaksi $transaksi)
     {
         try {
@@ -380,6 +410,9 @@ class TransaksiController extends Controller
         }
     }
 
+    /**
+     * Bagian: Detail transaksi pelanggan.
+     */
     public function show($order_id)
     {
         $this->syncExpiredTransactions();
@@ -422,6 +455,9 @@ class TransaksiController extends Controller
         return view('pelanggan.transaksi.show', compact('transaksi', 'trackingData'));
     }
 
+    /**
+     * Bagian: Helper data tracking mock untuk pengujian.
+     */
     private function getMockTrackingData($resi)
     {
         return [
@@ -444,6 +480,9 @@ class TransaksiController extends Controller
         ];
     }
 
+    /**
+     * Bagian: Halaman informasi pembayaran transaksi.
+     */
     public function pembayaran($order_id)
     {
         $this->syncExpiredTransactions();
@@ -461,6 +500,9 @@ class TransaksiController extends Controller
         return view('pelanggan.transaksi.pembayaran', compact('transaksi'));
     }
 
+    /**
+     * Bagian: Endpoint polling status transaksi (AJAX).
+     */
     public function checkStatus($order_id)
     {
         $transaksi = Transaksi::where('user_id', Auth::id())
@@ -474,6 +516,9 @@ class TransaksiController extends Controller
         ]);
     }
 
+    /**
+     * Bagian: Pembatalan transaksi oleh pelanggan.
+     */
     public function cancel($order_id)
     {
         try {
@@ -489,6 +534,9 @@ class TransaksiController extends Controller
         }
     }
 
+    /**
+     * Bagian: Konfirmasi transaksi selesai oleh pelanggan.
+     */
     public function selesai($order_id)
     {
         try {
@@ -505,6 +553,9 @@ class TransaksiController extends Controller
         }
     }
 
+    /**
+     * Bagian: Riwayat transaksi pelanggan per tab status.
+     */
     public function history(Request $request)
     {
         $this->syncExpiredTransactions();
@@ -527,6 +578,9 @@ class TransaksiController extends Controller
         return view('pelanggan.transaksi.history', compact('transaksis', 'tab'));
     }
 
+    /**
+     * Bagian: Sinkronisasi transaksi kedaluwarsa (auto-cancel).
+     */
     private function syncExpiredTransactions()
     {
         Transaksi::where('user_id', Auth::id())

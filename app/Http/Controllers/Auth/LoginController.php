@@ -6,13 +6,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Modul: Authentication
+ * Fitur: Login dan logout pengguna.
+ */
 class LoginController extends Controller
 {
+    /**
+     * Bagian: Halaman form login.
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    /**
+     * Bagian: Proses autentikasi login.
+     * Alur: validasi kredensial -> cek username case-sensitive -> redirect per role.
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -46,6 +57,9 @@ class LoginController extends Controller
         ])->onlyInput('username');
     }
 
+    /**
+     * Bagian: Proses logout dan invalidasi sesi.
+     */
     public function logout(Request $request)
     {
         Auth::logout();

@@ -7,8 +7,15 @@ use App\Models\Reward;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * Modul: Admin - Manajemen Reward
+ * Fitur: CRUD reward, soft delete/restore, dan monitoring reward pelanggan.
+ */
 class RewardController extends Controller
 {
+    /**
+     * Bagian: Listing reward admin beserta statistik.
+     */
     public function index(Request $request)
     {
         $status = $request->get('status');
@@ -37,6 +44,9 @@ class RewardController extends Controller
         return view('admin.reward.index', compact('rewards', 'stats'));
     }
 
+    /**
+     * Bagian: Simpan reward baru.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -55,6 +65,9 @@ class RewardController extends Controller
         return back()->with('success', 'Reward berhasil ditambahkan.');
     }
 
+    /**
+     * Bagian: Update reward atau restore reward terhapus.
+     */
     public function update(Request $request, $id)
     {
         $reward = Reward::findOrFail($id);
@@ -81,6 +94,9 @@ class RewardController extends Controller
         return back()->with('success', 'Reward berhasil diperbarui.');
     }
 
+    /**
+     * Bagian: Soft delete reward.
+     */
     public function destroy($id)
     {
         $reward = Reward::findOrFail($id);
@@ -89,6 +105,9 @@ class RewardController extends Controller
         return back()->with('success', 'Reward berhasil dihapus.');
     }
 
+    /**
+     * Bagian: Listing pelanggan untuk modul reward.
+     */
     public function customers(Request $request)
     {
         $search = $request->get('search');
@@ -107,6 +126,9 @@ class RewardController extends Controller
         return view('admin.reward.customers.index', compact('customers'));
     }
 
+    /**
+     * Bagian: Detail reward milik pelanggan (aktif, digunakan, kedaluwarsa).
+     */
     public function customerShow($id)
     {
         $customer = User::with(['penukaranRewards.reward', 'riwayatPoins'])->findOrFail($id);

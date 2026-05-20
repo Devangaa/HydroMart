@@ -9,8 +9,16 @@ use App\Models\Ulasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Modul: Pelanggan - Ulasan
+ * Fitur: Pengiriman ulasan untuk produk/layanan dari transaksi selesai.
+ */
 class UlasanController extends Controller
 {
+    /**
+     * Bagian: Simpan ulasan pelanggan.
+     * Alur: validasi input -> verifikasi transaksi selesai -> cegah duplikasi ulasan.
+     */
     public function store(Request $request)
     {
         $request->validate([

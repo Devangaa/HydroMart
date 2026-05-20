@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
 use Midtrans\Notification;
 
+/**
+ * Modul: API Payment Gateway
+ * Fitur: Menangani callback/notifikasi pembayaran dari Midtrans.
+ */
 class MidtransCallbackController extends Controller
 {
+    /**
+     * Bagian: Inisialisasi konfigurasi Midtrans SDK.
+     */
     public function __construct()
     {
         Config::$serverKey = config('midtrans.server_key');
@@ -19,6 +26,10 @@ class MidtransCallbackController extends Controller
         Config::$is3ds = config('midtrans.is_3ds');
     }
 
+    /**
+     * Bagian: Endpoint callback Midtrans.
+     * Alur: validasi signature -> cari transaksi -> sinkronkan status transaksi.
+     */
     public function handle(Request $request)
     {
         try {

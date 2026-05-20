@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
+/**
+ * Modul: Admin - Manajemen Layanan
+ * Fitur: CRUD layanan, upload gambar, soft delete, dan restore layanan.
+ */
 class LayananController extends Controller
 {
+    /**
+     * Bagian: Listing layanan admin beserta statistik.
+     */
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -52,6 +59,9 @@ class LayananController extends Controller
         return view('admin.layanan.index', compact('layanan', 'stats'));
     }
 
+    /**
+     * Bagian: Simpan layanan baru.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -91,6 +101,9 @@ class LayananController extends Controller
         return redirect()->back()->with('success', 'Layanan berhasil ditambahkan!');
     }
 
+    /**
+     * Bagian: Update layanan atau restore layanan terhapus.
+     */
     public function update(Request $request, $id)
     {
         $layanan = Layanan::findOrFail($id);
@@ -159,6 +172,9 @@ class LayananController extends Controller
         return redirect()->back()->with('success', 'Layanan diperbarui!');
     }
 
+    /**
+     * Bagian: Soft delete layanan.
+     */
     public function destroy($id)
     {
         $layanan = Layanan::findOrFail($id);

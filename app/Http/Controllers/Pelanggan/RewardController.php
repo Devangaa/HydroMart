@@ -9,8 +9,15 @@ use App\Models\RiwayatPoin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Modul: Pelanggan - Reward
+ * Fitur: Lihat reward, detail reward, klaim reward, dan riwayat reward milik user.
+ */
 class RewardController extends Controller
 {
+    /**
+     * Bagian: Listing reward yang tersedia.
+     */
     public function index()
     {
         $rewards = Reward::where('is_delete', 0)->get();
@@ -18,6 +25,9 @@ class RewardController extends Controller
         return view('pelanggan.reward.index', compact('rewards'));
     }
 
+    /**
+     * Bagian: Detail reward.
+     */
     public function show($id)
     {
         $reward = Reward::where('is_delete', 0)->findOrFail($id);
@@ -25,6 +35,10 @@ class RewardController extends Controller
         return view('pelanggan.reward.show', compact('reward'));
     }
 
+    /**
+     * Bagian: Riwayat reward milik pelanggan.
+     * Alur: sinkronisasi kedaluwarsa -> kelompokkan status reward.
+     */
     public function myRewards()
     {
         $user = Auth::user();
@@ -47,6 +61,10 @@ class RewardController extends Controller
         return view('pelanggan.reward.my-rewards', compact('activeRewards', 'usedRewards', 'expiredRewards'));
     }
 
+    /**
+     * Bagian: Klaim reward oleh pelanggan.
+     * Alur: validasi poin -> transaksi potong poin -> simpan penukaran.
+     */
     public function claim($id)
     {
         $reward = Reward::where('is_delete', 0)->findOrFail($id);
