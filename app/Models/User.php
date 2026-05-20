@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Model akun pengguna aplikasi (admin dan pelanggan).
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -38,6 +41,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Menentukan cast atribut model.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -47,21 +55,33 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Relasi akun ke kecamatan alamat.
+     */
     public function kecamatan()
     {
         return $this->belongsTo(Kecamatan::class);
     }
 
+    /**
+     * Relasi akun ke daftar ulasan.
+     */
     public function ulasans()
     {
         return $this->hasMany(Ulasan::class, 'id_akun');
     }
 
+    /**
+     * Relasi akun ke daftar penukaran reward.
+     */
     public function penukaranRewards()
     {
         return $this->hasMany(PenukaranReward::class, 'id_akun');
     }
 
+    /**
+     * Relasi akun ke riwayat poin.
+     */
     public function riwayatPoins()
     {
         return $this->hasMany(RiwayatPoin::class, 'id_akun');

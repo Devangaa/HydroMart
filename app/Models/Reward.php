@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model master reward yang dapat ditukar dengan poin pelanggan.
+ */
 class Reward extends Model
 {
     protected $table = 'rewards';
@@ -26,11 +29,17 @@ class Reward extends Model
         'is_delete' => 'boolean',
     ];
 
+    /**
+     * Cakupan query untuk mengambil reward yang masih aktif.
+     */
     public function scopeActive($query)
     {
         return $query->where('is_delete', false);
     }
 
+    /**
+     * Relasi reward ke riwayat penukaran.
+     */
     public function penukarans()
     {
         return $this->hasMany(PenukaranReward::class, 'id_reward');

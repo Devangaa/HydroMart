@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model detail item layanan pada sebuah transaksi.
+ */
 class DetailTransaksiLayanan extends Model
 {
     use HasFactory;
@@ -16,13 +19,13 @@ class DetailTransaksiLayanan extends Model
         'catatan',
     ];
 
-    // Relasi ke Transaksi (Header)
+    // Relasi ke transaksi utama (header pesanan).
     public function transaksi()
     {
         return $this->belongsTo(Transaksi::class);
     }
 
-    // Relasi ke Layanan (Master Data)
+    // Relasi ke data layanan yang dibeli.
     public function layanan()
     {
         return $this->belongsTo(Layanan::class);
@@ -30,6 +33,7 @@ class DetailTransaksiLayanan extends Model
 
     public function ulasan()
     {
+        // Satu detail transaksi layanan dapat memiliki satu ulasan layanan.
         return $this->hasOne(Ulasan::class, 'id_detailtransaksi')->whereNotNull('id_layanan');
     }
 }

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model master produk yang dijual HydroMart.
+ */
 class Product extends Model
 {
     use HasFactory;
@@ -33,7 +36,7 @@ class Product extends Model
         'foto_produk' => 'array',
     ];
 
-    // Scope untuk mempermudah pemanggilan produk yang belum dihapus
+    // Cakupan query untuk mempermudah pemanggilan produk yang belum dihapus.
     // Contoh penggunaan: Product::active()->get();
     public function scopeActive($query)
     {
@@ -45,16 +48,25 @@ class Product extends Model
         return str_replace(' ', '-', strtolower($this->nama_produk));
     }
 
+    /**
+     * Relasi produk ke ulasan pelanggan.
+     */
     public function ulasans()
     {
         return $this->hasMany(Ulasan::class, 'id_produk');
     }
 
+    /**
+     * Atribut aksesori rata-rata rating ulasan aktif.
+     */
     public function getAverageRatingAttribute()
     {
         return round($this->ulasans()->active()->avg('rating'), 1) ?: 0;
     }
 
+    /**
+     * Atribut aksesori total ulasan aktif.
+     */
     public function getTotalUlasanAttribute()
     {
         return $this->ulasans()->active()->count();

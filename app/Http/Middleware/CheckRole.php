@@ -10,7 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * Memastikan pengguna login dan memiliki peran yang sesuai.
+     *
+     * @param  string  $role  Peran yang diizinkan mengakses route.
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {

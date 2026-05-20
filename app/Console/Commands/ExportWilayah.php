@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
+/**
+ * Command untuk mengekspor data referensi wilayah ke file SQL.
+ */
 class ExportWilayah extends Command
 {
     /**
@@ -23,7 +26,7 @@ class ExportWilayah extends Command
     protected $description = 'Export data wilayah (provinces, cities, kecamatans) ke file SQL untuk backup seeder';
 
     /**
-     * Execute the console command.
+     * Menjalankan proses ekspor data wilayah.
      */
     public function handle()
     {
@@ -65,7 +68,7 @@ class ExportWilayah extends Command
                     }
                     $values[] = '('.implode(', ', $rowValues).')';
 
-                    // Chunk inserts to avoid massive single statements
+                    // Pecah INSERT per 500 baris agar query tidak terlalu besar.
                     if (count($values) >= 500) {
                         $sql .= implode(",\n", $values).";\n";
                         $sql .= "INSERT INTO `$table` (`$columnList`) VALUES \n";
@@ -76,7 +79,7 @@ class ExportWilayah extends Command
                 if (count($values) > 0) {
                     $sql .= implode(",\n", $values).";\n\n";
                 } else {
-                    // Fix trailing INSERT if the last chunk was exactly 500
+                    // Hapus sisa baris INSERT jika chunk terakhir tepat 500 data.
                     $sql = rtrim($sql, "INSERT INTO `$table` (`$columnList`) VALUES \n")."\n";
                 }
             }

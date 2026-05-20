@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Mendaftarkan service aplikasi.
      */
     public function register(): void
     {
@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Menjalankan inisialisasi service aplikasi.
      */
     public function boot(): void
     {
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Share cart count to navbar
+        // Membagikan jumlah item keranjang ke komponen navbar.
         View::composer('components.navbar', function ($view) {
             $cartCount = 0;
             if (auth()->check() && auth()->user()->role === 'pelanggan') {

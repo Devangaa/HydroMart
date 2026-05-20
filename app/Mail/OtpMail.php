@@ -14,17 +14,20 @@ class OtpMail extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * Create a new message instance.
+     * Kode OTP yang akan dikirim ke email pengguna.
      */
-    public $otp;
+    public string $otp;
 
-    public function __construct($otp)
+    /**
+     * Membuat instance email OTP baru.
+     */
+    public function __construct(string $otp)
     {
         $this->otp = $otp;
     }
 
     /**
-     * Get the message envelope.
+     * Mendefinisikan envelope email.
      */
     public function envelope(): Envelope
     {
@@ -34,7 +37,7 @@ class OtpMail extends Mailable
     }
 
     /**
-     * Get the message content definition.
+     * Mendefinisikan konten email.
      */
     public function content(): Content
     {
@@ -44,7 +47,7 @@ class OtpMail extends Mailable
     }
 
     /**
-     * Get the attachments for the message.
+     * Menentukan lampiran email (jika ada).
      *
      * @return array<int, Attachment>
      */

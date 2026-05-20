@@ -6,28 +6,46 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+/**
+ * Model transaksi utama yang menyimpan header pesanan pelanggan.
+ */
 class Transaksi extends Model
 {
+    /**
+     * Relasi transaksi ke detail layanan.
+     */
     public function detailLayanans()
     {
         return $this->hasMany(DetailTransaksiLayanan::class, 'transaksi_id');
     }
 
+    /**
+     * Relasi transaksi ke detail produk.
+     */
     public function detailProduks()
     {
         return $this->hasMany(DetailTransaksiProduk::class, 'transaksi_id');
     }
 
+    /**
+     * Relasi transaksi ke reward yang dipakai.
+     */
     public function rewardRedemption()
     {
         return $this->belongsTo(PenukaranReward::class, 'id_penukaran_reward');
     }
 
+    /**
+     * Relasi transaksi ke akun pelanggan.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Relasi transaksi ke kecamatan tujuan pengiriman.
+     */
     public function kecamatan()
     {
         return $this->belongsTo(Kecamatan::class);
@@ -52,6 +70,9 @@ class Transaksi extends Model
         'ongkir',
     ];
 
+    /**
+     * Atribut aksesori total harga setelah ongkir dan diskon reward.
+     */
     public function getTotalHargaAttribute()
     {
         $total = ($this->detailProduks->sum('total_harga') ?? 0) +
@@ -65,11 +86,17 @@ class Transaksi extends Model
         return max(0, $total);
     }
 
+    /**
+     * Menandai transaksi sebagai sudah dibayar.
+     */
     public function markAsPaid()
     {
         return $this->update(['status' => 'Diproses']);
     }
 
+    /**
+     * Menandai transaksi selesai dan memproses efek turunannya.
+     */
     public function markAsSelesai()
     {
         if ($this->status !== 'Selesai') {
@@ -98,6 +125,9 @@ class Transaksi extends Model
         return false;
     }
 
+    /**
+     * Menandai transaksi dibatalkan dan mengembalikan stok produk.
+     */
     public function markAsCancelled()
     {
         if ($this->status !== 'Dibatalkan') {
@@ -120,6 +150,7 @@ class Transaksi extends Model
         parent::boot();
 
         static::creating(function ($model) {
+            // Generate kode order otomatis saat transaksi dibuat.
             $model->order_id = 'HM-'.date('Ymd').'-'.strtoupper(Str::random(8));
         });
     }
