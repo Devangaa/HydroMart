@@ -365,9 +365,15 @@
     </div>
     </div>
 </div>
+<div id="wilayah-config" class="hidden"
+    data-province-id="{{ old('provinsi', $user->kecamatan->city->province_id ?? '') }}"
+    data-city-id="{{ old('kota', $user->kecamatan->city_id ?? '') }}"
+    data-kecamatan-id="{{ old('kecamatan', $user->kecamatan_id ?? '') }}"></div>
+
 @endsection
 
 @push('scripts')
+<!--
 <script>
     function cascadingDropdown() {
         const basePath = "{{ rtrim((string)parse_url(url('/'), PHP_URL_PATH), '/') }}";
@@ -534,4 +540,5 @@
         }
     }
 </script>
+-->
 @endpush

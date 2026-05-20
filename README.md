@@ -103,7 +103,7 @@ flowchart TD
 ### 6) Dashboard Admin
 ![Screenshot Dashboard Admin](docs/assets/screenshots/06-dashboard-admin.png)
 
-## Struktur Folder Penting
+## Struktur Folder Controllers
 
 ```text
 app/Http/Controllers/

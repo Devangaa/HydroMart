@@ -206,6 +206,12 @@
     </div>
 </div>
 
+<div id="pembayaran-config" class="hidden" data-config='@json([
+    "expiryTime" => $transaksi->batas_pembayaran,
+    "statusCheckUrl" => route("transaksi.status-check", $transaksi->order_id),
+])'></div>
+
+<!--
 <script>
     // Countdown logic
     const expiryTime = new Date("{{ $transaksi->batas_pembayaran }}").getTime();
@@ -249,4 +255,5 @@
         });
     }
 </script>
+-->
 @endsection

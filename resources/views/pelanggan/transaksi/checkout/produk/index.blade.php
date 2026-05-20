@@ -644,6 +644,22 @@
     </div>
 </div>
 
+@php
+    $checkoutProdukConfig = [
+        'mode' => $mode ?? 'cart',
+        'grandTotal' => $grandTotal,
+        'totalWeight' => $totalWeight,
+        'basePath' => rtrim((string) parse_url(url('/'), PHP_URL_PATH), '/'),
+        'availableRewards' => $availableRewards,
+    ];
+    if (($mode ?? '') === 'buy_now' && isset($items) && $items->count() > 0) {
+        $checkoutProdukConfig['productPrice'] = $items->first()->product->harga;
+        $checkoutProdukConfig['productWeight'] = $items->first()->product->berat;
+    }
+@endphp
+<div id="checkout-produk-config" class="hidden" data-config='@json($checkoutProdukConfig)'></div>
+
+<!--
 <script>
     // Format currency to Indonesian Rupiah format (Rp1.234.567)
     function formatCurrency(num) {
@@ -984,5 +1000,6 @@
         @endif
     });
 </script>
+-->
 
 @endsection

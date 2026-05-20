@@ -380,6 +380,14 @@
     </div>
 </div>
 
+<div id="checkout-layanan-config" class="hidden" data-config='@json([
+    "totalWeight" => $totalWeight,
+    "grandTotal" => $grandTotal,
+    "basePath" => rtrim((string) parse_url(url("/"), PHP_URL_PATH), "/"),
+    "useDistrictsApi" => false,
+])'></div>
+
+<!--
 <script>
     function formatCurrency(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -563,4 +571,5 @@
         }
     }
 </script>
+-->
 @endsection

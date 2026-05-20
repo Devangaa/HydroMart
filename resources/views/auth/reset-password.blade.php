@@ -115,6 +115,11 @@
     </template>
 </div>
 
+<div id="reset-password-config" class="hidden"
+    data-email="{{ $email }}"
+    data-login-url="{{ route('login') }}"></div>
+
+<!--
 <script>
     function resetPasswordHandler() {
         return {
@@ -175,6 +180,7 @@
         }
     }
 </script>
+-->
     </div>
 </div>
 @endsection

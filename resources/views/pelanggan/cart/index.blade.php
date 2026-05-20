@@ -215,7 +215,13 @@
     </div>
 </div>
 
+<div id="cart-config" class="hidden" data-config='@json([
+    "items" => $cartJson,
+    "updateUrl" => url("/keranjang/update"),
+])'></div>
+
 @push('scripts')
+<!--
 <script>
     function cartHandler() {
         return {
@@ -286,5 +292,6 @@
         }
     }
 </script>
+-->
 @endpush
 @endsection

@@ -79,6 +79,9 @@
     </div>
 </div>
 
+<div id="forgot-password-config" class="hidden" data-reset-url="{{ route('password.reset') }}"></div>
+
+<!--
 <script>
     function forgotPasswordHandler() {
         return {
@@ -157,6 +160,7 @@
         }
     }
 </script>
+-->
     </div>
 </div>
 @endsection

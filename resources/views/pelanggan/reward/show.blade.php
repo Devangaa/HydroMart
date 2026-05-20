@@ -130,6 +130,7 @@
     </div>
 </div>
 
+<!--
 <script>
     function confirmClaim(url, name, poin) {
         const modal = document.getElementById('confirmModal');
@@ -161,4 +162,5 @@
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 </script>
+-->
 @endsection

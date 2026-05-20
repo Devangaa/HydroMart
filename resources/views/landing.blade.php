@@ -49,6 +49,7 @@
             </div>
         </div>
 
+        <!--
         <style>
             @keyframes bounce-slow {
                 0%, 100% { transform: translateY(0); }
@@ -58,6 +59,7 @@
                 animation: bounce-slow 3s infinite;
             }
         </style>
+        -->
     </section>
 
     <section data-aos="fade-up" class="bg-green-100 py-12">

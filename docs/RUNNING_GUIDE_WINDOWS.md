@@ -77,12 +77,19 @@ php artisan migrate --seed
 
 ## 6) Menjalankan Aplikasi
 
-Terminal 1:
+Frontend (CSS/JS) memakai **Vite**. Pilih salah satu:
+
+**Development** (hot reload saat edit CSS/JS):
 ```bash
 npm run dev
 ```
 
-Terminal 2:
+**Production build** (sekali build, tanpa proses Vite berjalan terus):
+```bash
+npm run build
+```
+
+Terminal aplikasi:
 ```bash
 php artisan serve
 ```
