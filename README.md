@@ -3,6 +3,7 @@
 > Sistem e-commerce Laravel untuk penjualan **produk** dan **layanan** dengan fitur checkout, pembayaran, tracking, dan reward pelanggan.
 
 [![Panduan Pull & Menjalankan](https://img.shields.io/badge/Lihat-Panduan%20Pull%20%26%20Menjalankan-0ea5e9?style=for-the-badge)](docs/RUNNING_GUIDE_WINDOWS.md)
+[![Alur Fitur Lengkap](https://img.shields.io/badge/Baca-Alur%20Fitur%20Lengkap-22c55e?style=for-the-badge)](docs/ALUR_FITUR.md)
 
 ---
 
@@ -116,3 +117,5 @@ app/Http/Controllers/
 
 - Panduan pull repository dan cara menjalankan di Windows:
   - [docs/RUNNING_GUIDE_WINDOWS.md](docs/RUNNING_GUIDE_WINDOWS.md)
+- Dokumentasi alur kerja semua fitur (user → controller → database → API → email):
+  - [docs/ALUR_FITUR.md](docs/ALUR_FITUR.md)
