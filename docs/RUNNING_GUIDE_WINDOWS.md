@@ -1,7 +1,5 @@
 # Panduan Pull dan Menjalankan (Windows)
 
-[![Kembali ke README Utama](https://img.shields.io/badge/Kembali-README%20Utama-22c55e?style=for-the-badge)](../README.md)
-
 Panduan ini khusus untuk:
 - pull update terbaru dari repository,
 - setup project di laptop Windows lain,
