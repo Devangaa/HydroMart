@@ -4,11 +4,30 @@
 {{-- DESKRIPSI: Modal konfirmasi penghapusan layanan. --}}
 {{-- ============================================================================= --}}
 
-{{-- Modal: Konfirmasi Hapus --}}
 {{-- Modal: Konfirmasi Hapus Layanan --}}
 <template x-teleport="body">
-    <div x-show="showDeleteModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" style="display: none;" x-transition>
-        <div @click.away="showDeleteModal = false" class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl">
+    <div x-show="showDeleteModal"
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+         @click.self="showDeleteModal = false"
+         style="display: none;">
+
+        <div @click.stop
+             x-show="showDeleteModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl relative z-10">
+
             <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

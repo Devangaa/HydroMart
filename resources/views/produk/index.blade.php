@@ -11,8 +11,8 @@
 @section('content')
 <div class="w-full bg-gray-50/50 min-h-screen pb-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {{-- Bagian: Header Halaman --}}
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div data-aos="fade-right">
                 <span class="inline-block px-4 py-1.5 bg-green-100 text-green-700 text-xs font-bold rounded-full mb-4 uppercase">
@@ -26,7 +26,6 @@
         </div>
 
         {{-- Bagian: Filter & Pencarian --}}
-        <div class="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm mb-10
         <div class="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm mb-10 relative z-40" data-aos="fade-up">
             <form id="product-category-form" action="{{ route('produk.index') }}" method="GET" class="flex flex-col md:flex-row flex-wrap gap-4 items-start md:items-center">
                 <div class="relative w-full md:flex-1 md:min-w-[300px]">
@@ -35,9 +34,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </span>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari benih, selada, atau nutrisi" 
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari benih, selada, atau nutrisi"
                         class="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-green-500 transition outline-none text-sm">
-                    
+
                     @if(request('search') || request('category'))
                         <a href="{{ route('produk.index') }}" class="absolute inset-y-0 right-4 flex items-center text-red-500 hover:text-red-700 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -83,7 +82,6 @@
         </div>
 
         {{-- Bagian: Grid Produk --}}
-        <div id="product-container"
         <div id="product-container" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             @forelse($products as $product)
                 @include('produk.item-card', ['product' => $product])
@@ -98,47 +96,47 @@
 
         {{-- Bagian: Paginasi --}}
         @if($products->hasPages())
-        @if($products->hasPages())
-        <div class="mt-12 flex flex-col md:flex-row justify-between items-center gap-4" data-aos="fade-up">
-            <p class="text-xs font-bold text-gray-400">
-                Menampilkan {{ $products->firstItem() }}-{{ $products->lastItem() }} dari {{ $products->total() }} produk
-            </p>
-            
-            <div class="flex gap-1">
-                @if ($products->onFirstPage())
-                    <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                        <
-                    </span>
-                @else
-                    <a href="{{ $products->appends(request()->query())->previousPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                        <
-                    </a>
-                @endif
+            <div class="mt-12 flex flex-col md:flex-row justify-between items-center gap-4" data-aos="fade-up">
+                <p class="text-xs font-bold text-gray-400">
+                    Menampilkan {{ $products->firstItem() }}-{{ $products->lastItem() }} dari {{ $products->total() }} produk
+                </p>
 
-                @foreach ($products->appends(request()->query())->getUrlRange(max(1, $products->currentPage() - 1), min($products->lastPage(), $products->currentPage() + 1)) as $page => $url)
-                    @if ($page == $products->currentPage())
-                        <span class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl shadow-sm shadow-green-100">
-                            {{ $page }}
+                <div class="flex gap-1">
+                    @if ($products->onFirstPage())
+                        <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
+                            &lt;
                         </span>
                     @else
-                        <a href="{{ $url }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all">
-                            {{ $page }}
+                        <a href="{{ $products->appends(request()->query())->previousPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
+                            &lt;
                         </a>
                     @endif
-                @endforeach
 
-                @if ($products->hasMorePages())
-                    <a href="{{ $products->appends(request()->query())->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
-                        >
-                    </a>
-                @else
-                    <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
-                        >
-                    </span>
-                @endif
+                    @foreach ($products->appends(request()->query())->getUrlRange(max(1, $products->currentPage() - 1), min($products->lastPage(), $products->currentPage() + 1)) as $page => $url)
+                        @if ($page == $products->currentPage())
+                            <span class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl shadow-sm shadow-green-100">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $url }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    @if ($products->hasMorePages())
+                        <a href="{{ $products->appends(request()->query())->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all duration-300">
+                            &gt;
+                        </a>
+                    @else
+                        <span class="px-4 py-2 bg-white border border-gray-100 text-gray-300 text-xs font-bold rounded-xl cursor-not-allowed">
+                            &gt;
+                        </span>
+                    @endif
+                </div>
             </div>
-        </div>
         @endif
+
     </div>
 </div>
 @endsection

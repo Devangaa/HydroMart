@@ -37,7 +37,7 @@
         </div>
         @endif
 
-        {{-- Bagian: Harga & Stok --}}
+        {{-- Bagian: Harga --}}
         <div class="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
             <div>
                 <p class="hidden md:block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Harga</p>
@@ -46,10 +46,9 @@
                 </p>
             </div>
             <div class="text-right hidden md:block">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Stok</p>
-                <p class="text-gray-900 font-black text-sm">
-                    {{ $layanan->jumlah_stok }} <span class="text-[10px] text-gray-500 font-medium lowercase">{{ $layanan->unit }}</span>
-                </p>
+                <span class="inline-block px-3 py-1 bg-green-50 text-green-700 text-[10px] font-black rounded-lg uppercase tracking-wider">
+                    Layanan
+                </span>
             </div>
         </div>
     </div>

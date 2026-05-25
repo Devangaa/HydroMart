@@ -31,6 +31,37 @@ input::-ms-clear {
     display: none !important;
 }
 
+/* Pointer cursor on interactive controls */
+@layer base {
+    :is(
+        a[href],
+        button:not(:disabled):not([disabled]),
+        [type='button']:not(:disabled):not([disabled]),
+        [type='submit']:not(:disabled):not([disabled]),
+        [type='reset']:not(:disabled):not([disabled]),
+        label[for],
+        select:not(:disabled):not([disabled]),
+        summary,
+        [role='button']:not([aria-disabled='true']),
+        [onclick],
+        .cursor-pointer
+    ) {
+        cursor: pointer;
+    }
+
+    :is(
+        button:disabled,
+        button[disabled],
+        input:disabled,
+        select:disabled,
+        textarea:disabled,
+        .cursor-not-allowed,
+        [aria-disabled='true']
+    ) {
+        cursor: not-allowed;
+    }
+}
+
 /* Landing page animation (migrated from landing.blade.php) */
 @keyframes bounce-slow {
     0%,

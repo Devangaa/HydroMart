@@ -21,15 +21,21 @@ export function getPageConfig(id) {
         return {};
     }
 
+    if (el._parsedConfig) {
+        return el._parsedConfig;
+    }
+
     if (el.dataset.config) {
         try {
-            return JSON.parse(el.dataset.config);
+            el._parsedConfig = JSON.parse(el.dataset.config);
+            return el._parsedConfig;
         } catch {
             return {};
         }
     }
 
-    return { ...el.dataset };
+    el._parsedConfig = { ...el.dataset };
+    return el._parsedConfig;
 }
 
 export function formatCurrency(num) {

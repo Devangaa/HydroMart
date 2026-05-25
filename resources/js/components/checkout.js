@@ -73,7 +73,16 @@ export function checkoutSummary(initialSubtotal, availableRewards = []) {
         rewardDiscount: 0,
         rewardName: '',
         showRewardModal: false,
+        showConfirmModal: false,
+        isSubmitting: false,
         availableRewards,
+        errors: {
+            nama_penerima: '',
+            no_hp: '',
+            kecamatan_id: '',
+            alamat_lengkap: '',
+            metode_pembayaran: ''
+        },
 
         get finalTotal() {
             return Math.max(0, this.subtotal - this.rewardDiscount + this.ongkir);
@@ -111,6 +120,92 @@ export function checkoutSummary(initialSubtotal, availableRewards = []) {
                     this.removeReward();
                 }
             }
+        },
+
+        getCheckoutForm() {
+            return this.$refs.checkoutForm
+                ?? (this.$el?.tagName === 'FORM' ? this.$el : this.$el?.closest?.('form'));
+        },
+
+        fetchShippingForKecamatan(kecamatanId) {
+            const cfg = getPageConfig('checkout-produk-config') || getPageConfig('checkout-layanan-config');
+
+            if (cfg?.onKecamatanSelect && kecamatanId) {
+                cfg.onKecamatanSelect(kecamatanId);
+            }
+        },
+
+        openConfirmModal() {
+            // Reset errors
+            this.errors.nama_penerima = '';
+            this.errors.no_hp = '';
+            this.errors.kecamatan_id = '';
+            this.errors.alamat_lengkap = '';
+            this.errors.metode_pembayaran = '';
+
+            const form = this.getCheckoutForm();
+
+            if (! form) {
+                return;
+            }
+
+            let isValid = true;
+
+            const namaInput = form.querySelector('input[name="nama_penerima"]');
+            if (namaInput && !namaInput.value.trim()) {
+                this.errors.nama_penerima = 'Nama penerima wajib diisi.';
+                isValid = false;
+            }
+
+            const noHpInput = form.querySelector('input[name="no_hp"]');
+            if (noHpInput && !noHpInput.value.trim()) {
+                this.errors.no_hp = 'Nomor HP wajib diisi.';
+                isValid = false;
+            }
+
+            const kecamatanInput = form.querySelector('input[name="kecamatan_id"]');
+            if (!kecamatanInput || !kecamatanInput.value.trim()) {
+                this.errors.kecamatan_id = 'Kecamatan wajib dipilih.';
+                isValid = false;
+            }
+
+            const alamatInput = form.querySelector('textarea[name="alamat_lengkap"]');
+            if (alamatInput && !alamatInput.value.trim()) {
+                this.errors.alamat_lengkap = 'Alamat Lengkap wajib diisi.';
+                isValid = false;
+            }
+
+            const metodeInput = form.querySelector('input[name="metode_pembayaran"]');
+            if (!metodeInput || !metodeInput.value.trim()) {
+                this.errors.metode_pembayaran = 'Silakan pilih metode pembayaran.';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            if (['Pilih Lokasi', 'Menghitung...', 'Gagal memuat'].includes(this.ongkirText)) {
+                this.errors.kecamatan_id = 'Ongkir belum dihitung. Pilih kecamatan yang valid.';
+                return;
+            }
+
+            this.showConfirmModal = true;
+        },
+
+        confirmCheckout() {
+            if (this.isSubmitting) {
+                return;
+            }
+
+            const form = this.getCheckoutForm();
+
+            if (! form) {
+                return;
+            }
+
+            this.isSubmitting = true;
+            form.submit();
         },
     };
 }
@@ -399,7 +494,7 @@ export function initCheckoutProduk() {
         return cfg.grandTotal ?? 0;
     };
 
-    window.updateTotal = function (productPrice, productWeight) {
+    const updateTotalHandler = function (productPrice, productWeight) {
         if (cfg.mode !== 'buy_now') {
             return;
         }
@@ -423,12 +518,15 @@ export function initCheckoutProduk() {
         summary.updateSubtotal(subtotal);
 
         const kecamatanInput = document.querySelector('input[name="kecamatan_id"]');
-        const kecamatanId = kecamatanInput ? kecamatanInput.value : null;
+        const kecamatanId = kecamatanInput?.value || null;
 
         if (kecamatanId) {
             fetchOngkirAjax(kecamatanId, totalWeight, subtotal, cfg.basePath, summary);
         }
     };
+
+    window.updateTotal = updateTotalHandler;
+    window.__checkoutUpdateTotal = updateTotalHandler;
 
     cfg.onKecamatanSelect = (kecamatanId) => {
         const summaryEl = document.querySelector('[x-data*="checkoutSummary"]');
@@ -457,6 +555,9 @@ export function initCheckoutLayanan() {
     }
 
     cfg.onKecamatanSelect = (kecamatanId) => {
-        fetchOngkirAjax(kecamatanId, cfg.totalWeight, cfg.grandTotal, cfg.basePath);
+        const summaryEl = document.querySelector('[x-data*="checkoutSummary"]');
+        const summary = summaryEl?._x_dataStack?.[0] ?? null;
+
+        fetchOngkirAjax(kecamatanId, cfg.totalWeight, cfg.grandTotal, cfg.basePath, summary);
     };
 }

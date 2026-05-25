@@ -27,7 +27,7 @@
             </ol>
         </nav>
 
-        <div class="mb-8">
+        <div class="mb-8" data-aos="fade-right">
             <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase">
                 Checkout Layanan
             </span>
@@ -36,7 +36,7 @@
         </div>
 
         @if($isLayananGeofencing)
-            <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4">
+            <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4" data-aos="fade-up">
                 <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -65,16 +65,23 @@
         @endphp
 
         {{-- Bagian: Form Checkout Layanan --}}
-        <form action=
-        <form action="{{ route('checkout.layanan.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form action="{{ route('checkout.layanan.store') }}" method="POST"
+              x-ref="checkoutForm"
+              x-data="checkoutSummary({{ $grandTotal }})"
+              @checkout-fetch-shipping.window="fetchShippingForKecamatan($event.detail.id)"
+              novalidate
+              class="w-full">
             @csrf
             <input type="hidden" name="layanan_id" value="{{ $layanan->id }}">
 
+            @include('pelanggan.transaksi.checkout.layanan.modal-confirm')
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Kolom Utama (Kiri) --}}
             <div class="lg:col-span-2 space-y-6">
                 
                 {{-- Detail Layanan Card --}}
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-up">
                     <div class="p-8 border-b border-gray-200 flex items-center gap-4">
                         <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center border border-green-100 text-green-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +142,7 @@
                 </div>
 
                 {{-- Informasi Lokasi Card --}}
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100" data-aos="fade-up" data-aos-delay="100">
                     <div class="p-8 border-b border-gray-200 flex items-center gap-4">
                         <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 text-blue-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,14 +163,22 @@
                                 <input type="text" name="nama_penerima" value="{{ auth()->user()->nama_lengkap ?? auth()->user()->username }}"
                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none transition placeholder-gray-300"
                                        placeholder="Masukkan nama pemesan"
+                                       @input="errors.nama_penerima = ''"
                                        required>
+                                <template x-if="errors.nama_penerima">
+                                    <p class="text-red-500 text-xs mt-2 ml-1" x-text="errors.nama_penerima"></p>
+                                </template>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Nomor HP</label>
                                 <input type="tel" name="no_hp" value="{{ auth()->user()->no_hp ?? '' }}"
                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none transition placeholder-gray-300"
                                        placeholder="Masukkan nomor hp"
+                                       @input="errors.no_hp = ''"
                                        required>
+                                <template x-if="errors.no_hp">
+                                    <p class="text-red-500 text-xs mt-2 ml-1" x-text="errors.no_hp"></p>
+                                </template>
                             </div>
                         </div>
 
@@ -172,10 +187,11 @@
                             <div class="relative" x-data="{ open: false }">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Provinsi</label>
                                 <input type="hidden" name="province_id" :value="selectedProvince">
-                                <button type="button" @click="if(!isSayuran) { open = !open; if(open) $nextTick(() => $refs.provSearch.focus()) }" 
+                                <button type="button" @click="if(!isSayuran) { open = !open; if(open) $nextTick(() => $refs.provSearch.focus()) }"
                                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-left flex items-center justify-between gap-2"
                                         :class="isSayuran ? 'opacity-70 cursor-not-allowed bg-gray-100' : ''">
                                     <span :class="selectedProvinceName ? 'text-gray-800' : 'text-gray-400'" x-text="selectedProvinceName || 'Pilih Provinsi'"></span>
+                                    <svg class="h-4 w-4 text-gray-400 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak @click.away="open = false" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
                                     <div class="p-2 border-b border-gray-50 bg-gray-50/50">
@@ -199,6 +215,7 @@
                                 <button type="button" @click="if(selectedProvince && !isSayuran) { open = !open; if(open) $nextTick(() => $refs.citySearch.focus()) }" :disabled="!selectedProvince || isSayuran"
                                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-left flex items-center justify-between gap-2" :class="{'opacity-70 cursor-not-allowed bg-gray-100': isSayuran || !selectedProvince}">
                                     <span :class="selectedCityName ? 'text-gray-800' : 'text-gray-400'" x-text="loadingCities ? 'Memuat...' : (selectedCityName || 'Pilih Kota')"></span>
+                                    <svg class="h-4 w-4 text-gray-400 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div x-show="open" x-cloak @click.away="open = false" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
                                     <div class="p-2 border-b border-gray-50 bg-gray-50/50">
@@ -224,6 +241,9 @@
                                     <span :class="selectedKecamatanName ? 'text-gray-800' : 'text-gray-400'" x-text="loadingKecamatan ? 'Memuat...' : (selectedKecamatanName || 'Pilih Kecamatan')"></span>
                                     <svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
+                                <template x-if="errors.kecamatan_id">
+                                    <p class="text-red-500 text-xs mt-2 ml-1" x-text="errors.kecamatan_id"></p>
+                                </template>
                                 <div x-show="open" x-cloak @click.away="open = false" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
                                     <div class="p-2 border-b border-gray-50 bg-gray-50/50">
                                         <input type="text" x-model="kecamatanSearch" x-ref="kecSearch" placeholder="Cari kecamatan..."
@@ -234,7 +254,7 @@
                                             <p class="px-4 py-3 text-sm text-gray-400 text-center">Tidak ditemukan</p>
                                         </template>
                                         <template x-for="kec in filteredKecamatan" :key="kec.id">
-                                            <button type="button" @click="selectKecamatan(kec); open = false" class="w-full text-left px-4 py-3 text-sm hover:bg-green-50 transition" x-text="kec.name"></button>
+                                            <button type="button" @click="selectKecamatan(kec); open = false; errors.kecamatan_id = '';" class="w-full text-left px-4 py-3 text-sm hover:bg-green-50 transition" x-text="kec.name"></button>
                                         </template>
                                     </div>
                                 </div>
@@ -245,7 +265,11 @@
                             <label class="block text-sm font-bold text-gray-700 mb-2">Alamat Lengkap</label>
                             <textarea name="alamat_lengkap" rows="3" placeholder="Jl. Contoh No. 123, RT/RW 01/02..."
                                       class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none transition placeholder-gray-300"
+                                      @input="errors.alamat_lengkap = ''"
                                       required></textarea>
+                            <template x-if="errors.alamat_lengkap">
+                                <p class="text-red-500 text-xs mt-2 ml-1" x-text="errors.alamat_lengkap"></p>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -254,7 +278,7 @@
             {{-- Sidebar Kanan --}}
             <div class="lg:col-span-1 lg:sticky lg:top-24 lg:self-start h-fit space-y-6">
                 {{-- Ringkasan Pesanan --}}
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-left">
                     <div class="p-6 border-b border-gray-200 flex items-center gap-3">
                         <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center border border-purple-100 text-purple-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -269,22 +293,22 @@
                     <div class="p-6 space-y-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Subtotal</span>
-                            <span class="font-bold text-gray-900">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                            <span class="font-bold text-gray-900" x-text="'Rp' + formatCurrency(subtotal)"></span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Ongkir</span>
-                            <span class="font-bold text-green-600" id="ongkir-text">Pilih Lokasi</span>
+                            <span class="font-bold text-green-600" x-text="ongkirText"></span>
                         </div>
                         <hr class="border-gray-100">
                         <div class="flex justify-between">
                             <span class="font-bold text-gray-900">Total</span>
-                            <span class="text-xl font-black text-green-600" id="total">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                            <span class="text-xl font-black text-green-600" x-text="'Rp' + formatCurrency(finalTotal)"></span>
                         </div>
                     </div>
                 </div>
 
                 {{-- Metode Pembayaran --}}
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden" data-aos="fade-left" data-aos-delay="100">
                     <div class="p-6 border-b border-gray-200 flex items-center gap-3">
                         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100 text-blue-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,7 +366,7 @@
                             :class="selectedMethod === '{{ $method['id'] }}' 
                                         ? 'border-green-500 bg-green-50' 
                                         : ({{ $method['is_cod'] ? 'isCodDisabled' : 'false' }} ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed' : 'border-gray-200 hover:border-green-300 bg-white')"
-                            @click="if (!({{ $method['is_cod'] ? 'isCodDisabled' : 'false' }})) selectedMethod = '{{ $method['id'] }}'">
+                            @click="if (!({{ $method['is_cod'] ? 'isCodDisabled' : 'false' }})) { selectedMethod = '{{ $method['id'] }}'; errors.metode_pembayaran = ''; }">
                             
                             <div class="flex items-center gap-4 flex-1">
                                 <div class="w-14 h-14 {{ $method['bg'] }} rounded-lg flex items-center justify-center border border-gray-100 shrink-0 p-1">
@@ -377,13 +401,18 @@
                             </div>
                         </label>
                         @endforeach
+
+                        <template x-if="errors.metode_pembayaran">
+                            <p class="text-red-500 text-xs mt-2 ml-1" x-text="errors.metode_pembayaran"></p>
+                        </template>
                     </div>
                 </div>
 
                 {{-- Tombol Submit --}}
-                <button type="submit" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition duration-200">
+                <button type="button" @click="openConfirmModal()" class="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-green-700 shadow-lg shadow-green-100 transition duration-200" data-aos="fade-left" data-aos-delay="200">
                     Pesan Layanan Sekarang
                 </button>
+            </div>
             </div>
         </form>
     </div>
@@ -400,190 +429,4 @@
 {{-- Bagian: Konfigurasi Data --}}
 <div id="checkout-layanan-config" class="hidden" data-config="{{ json_encode($checkoutLayananConfig) }}"></div>
 
-{{-- Bagian: Skrip Arsip --}}
-<!--
-<script>
-    function formatCurrency(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    async function fetchOngkirAjax(kecamatanId, totalWeight, grandTotal, basePath) {
-        const ongkirText = document.getElementById('ongkir-text');
-        const totalText = document.getElementById('total');
-        
-        ongkirText.textContent = 'Menghitung...';
-        ongkirText.classList.remove('text-green-600');
-        ongkirText.classList.add('text-gray-400');
-
-        try {
-            const response = await fetch(`${basePath}/cek-ongkir?kecamatan_id=${kecamatanId}&total_weight=${totalWeight}`);
-            const data = await response.json();
-
-            if (data.success) {
-                if (data.ongkir === 0) {
-                    ongkirText.textContent = 'Gratis';
-                    ongkirText.classList.add('text-green-600');
-                    ongkirText.classList.remove('text-gray-400', 'text-gray-900');
-                } else {
-                    ongkirText.textContent = data.formatted_ongkir;
-                    ongkirText.classList.add('text-gray-900');
-                    ongkirText.classList.remove('text-green-600', 'text-gray-400');
-                }
-
-                totalText.textContent = `Rp${formatCurrency(grandTotal + data.ongkir)}`;
-            } else {
-                ongkirText.textContent = 'Gagal memuat';
-            }
-        } catch (error) {
-            console.error('Error fetching ongkir:', error);
-            ongkirText.textContent = 'Gagal memuat';
-        }
-    }
-
-    // Alpine.js component for payment method
-    function paymentMethod() {
-        return {
-            selectedMethod: 'bca', // Default to BCA
-            isCodDisabled: true,
-
-            init() {
-                this.updateCodAvailability();
-                const observer = new MutationObserver(() => this.updateCodAvailability());
-                const provinceInput = document.querySelector('input[name="province_id"]');
-                const cityInput = document.querySelector('input[name="city_id"]');
-                const kecamatanInput = document.querySelector('input[name="kecamatan_id"]');
-                if (provinceInput) observer.observe(provinceInput, { attributes: true });
-                if (cityInput) observer.observe(cityInput, { attributes: true });
-                if (kecamatanInput) observer.observe(kecamatanInput, { attributes: true });
-            },
-
-            updateCodAvailability() {
-                let provinceName = '';
-                let cityName = '';
-                let kecamatanName = '';
-
-                const dropdownDiv = document.querySelector('[x-data*="checkoutDropdown"]');
-                if (dropdownDiv && dropdownDiv._x_dataStack && dropdownDiv._x_dataStack[0]) {
-                    provinceName = dropdownDiv._x_dataStack[0].selectedProvinceName || '';
-                    cityName = dropdownDiv._x_dataStack[0].selectedCityName || '';
-                    kecamatanName = dropdownDiv._x_dataStack[0].selectedKecamatanName || '';
-                }
-
-                const isJawatimur = provinceName.toLowerCase().includes('jawa timur');
-                const isJember = cityName.toLowerCase().includes('jember');
-                const allowedKecamatan = ['Sumbersari', 'Patrang', 'Kaliwates'];
-                const isAllowedKecamatan = allowedKecamatan.some(k => kecamatanName.toLowerCase().includes(k.toLowerCase()));
-
-                this.isCodDisabled = !(isJawatimur && isJember && isAllowedKecamatan);
-
-                if (this.isCodDisabled && this.selectedMethod === 'cod') {
-                    this.selectedMethod = 'bca';
-                }
-            },
-        }
-    }
-
-    // Alpine.js component for cascading dropdowns
-    function checkoutDropdown(isSayuran, initialProvinces, basePath = '', restrictedKecamatans = [], lockedProvince = null, lockedCity = null) {
-        return {
-            isSayuran: isSayuran,
-            provinces: initialProvinces,
-            cities: [],
-            kecamatan: restrictedKecamatans,
-            selectedProvince: '',
-            selectedCity: '',
-            selectedKecamatan: '',
-            selectedProvinceName: '',
-            selectedCityName: '',
-            selectedKecamatanName: '',
-
-            provinceSearch: '',
-            citySearch: '',
-            kecamatanSearch: '',
-
-            loadingCities: false,
-            loadingKecamatan: false,
-
-            get filteredProvinces() {
-                if (!this.provinceSearch) return this.provinces;
-                const q = this.provinceSearch.toLowerCase();
-                return this.provinces.filter(p => p.name.toLowerCase().includes(q));
-            },
-
-            get filteredCities() {
-                if (!this.citySearch) return this.cities;
-                const q = this.citySearch.toLowerCase();
-                return this.cities.filter(c => c.name.toLowerCase().includes(q));
-            },
-
-            get filteredKecamatan() {
-                if (!this.kecamatanSearch) return this.kecamatan;
-                const q = this.kecamatanSearch.toLowerCase();
-                return this.kecamatan.filter(k => k.name.toLowerCase().includes(q));
-            },
-
-            selectProvince(prov) {
-                this.selectedProvince = prov.id;
-                this.selectedProvinceName = prov.name;
-                this.provinceSearch = '';
-                this.selectedCity = '';
-                this.selectedCityName = '';
-                this.selectedKecamatan = '';
-                this.selectedKecamatanName = '';
-                this.cities = [];
-                this.onProvinceChange();
-            },
-
-            selectCity(city) {
-                this.selectedCity = city.id;
-                this.selectedCityName = city.name;
-                this.citySearch = '';
-                this.selectedKecamatan = '';
-                this.selectedKecamatanName = '';
-                this.onCityChange();
-            },
-
-            selectKecamatan(kec) {
-                this.selectedKecamatan = kec.id;
-                this.selectedKecamatanName = kec.name;
-                this.kecamatanSearch = '';
-                
-                // Fetch Ongkir
-                const totalWeight = {{ $totalWeight }};
-                const grandTotal = {{ $grandTotal }};
-                fetchOngkirAjax(kec.id, totalWeight, grandTotal, basePath);
-            },
-
-            async init() {
-                if (this.isSayuran && lockedProvince && lockedCity) {
-                    this.selectedProvince = lockedProvince.id;
-                    this.selectedProvinceName = lockedProvince.name;
-                    this.selectedCity = lockedCity.id;
-                    this.selectedCityName = lockedCity.name;
-                }
-            },
-
-            async onProvinceChange() {
-                if (!this.selectedProvince || this.isSayuran) return;
-                this.loadingCities = true;
-                try {
-                    const res = await fetch(`${basePath}/api/cities-transaction/${this.selectedProvince}`);
-                    this.cities = await res.json();
-                } catch (e) { console.error(e); }
-                finally { this.loadingCities = false; }
-            },
-
-            async onCityChange() {
-                if (!this.selectedCity || this.isSayuran) return;
-                this.loadingKecamatan = true;
-                try {
-                    const res = await fetch(`${basePath}/api/districts/${this.selectedCity}`);
-                    this.kecamatan = await res.json();
-                } catch (e) { console.error(e); }
-                finally { this.loadingKecamatan = false; }
-            }
-        }
-    }
-</script>
--->
 @endsection

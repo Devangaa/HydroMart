@@ -20,7 +20,8 @@ window.Alpine = Alpine;
 window.cascadingDropdown = cascadingDropdown;
 window.checkoutDropdown = checkoutDropdown;
 window.checkoutSummary = function (initialSubtotal) {
-    const el = document.getElementById('checkout-produk-config');
+    const el = document.getElementById('checkout-produk-config')
+        ?? document.getElementById('checkout-layanan-config');
     let rewards = [];
 
     if (el?.dataset.config) {
@@ -32,6 +33,12 @@ window.checkoutSummary = function (initialSubtotal) {
     }
 
     return checkoutSummary(initialSubtotal, rewards);
+};
+
+window.updateTotal = function (productPrice, productWeight) {
+    if (typeof window.__checkoutUpdateTotal === 'function') {
+        window.__checkoutUpdateTotal(productPrice, productWeight);
+    }
 };
 window.paymentMethod = paymentMethod;
 window.fetchOngkirAjax = fetchOngkirAjax;

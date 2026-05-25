@@ -11,16 +11,23 @@
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
          style="display: none;">
         
-        <div @click.away="showCreateModal = false" 
-            class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl relative">
+        <div @click.stop
+            @click.away="showCreateModal = false"
+            x-show="showCreateModal"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl relative my-auto">
             
             {{-- Bagian: Header Modal --}}
-            <div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
             <div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-900">Tambah Layanan Baru</h1>
                 <button @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600 transition">
@@ -31,7 +38,6 @@
             </div>
 
             {{-- Bagian: Form --}}
-            <form action=
             <form action="{{ route('admin.layanan.store') }}" method="POST" enctype="multipart/form-data" class="p-8"
                 x-data="{ 
                     newPhotos: [],
