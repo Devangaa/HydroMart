@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\KeuanganController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\RewardController;
@@ -115,6 +116,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/kelolakeuangan/store', [KeuanganController::class, 'store'])->name('keuangan.store');
         Route::patch('/kelolakeuangan/{id}', [KeuanganController::class, 'update'])->name('keuangan.update');
         Route::delete('/kelolakeuangan/{id}', [KeuanganController::class, 'destroy'])->name('keuangan.destroy');
+
+        // ===== Laporan Tahunan & Bulanan =====
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     });
 
     // Route pelanggan.

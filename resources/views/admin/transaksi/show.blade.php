@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 {{-- ============================================================================= --}}
 {{-- FILE: admin/transaksi/show.blade.php --}}
@@ -95,6 +95,12 @@
                                     Selesaikan Pesanan
                                 </button>
                             </form>
+
+                            @if($transaksi->metode_pembayaran != 'cod')
+                                <button @click="showResiModal = true" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                                    Kirim Ulang (Update Resi)
+                                </button>
+                            @endif
                         @endif
 
                         {{-- Cancel Button (available if not cancelled/finished/shipped/processed) --}}
