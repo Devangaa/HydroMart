@@ -17,4 +17,5 @@ Route::middleware('api')->group(function () {
         return response()->json(['message' => 'Midtrans Callback Endpoint is active. Please use POST to send data.']);
     });
     Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle']);
+    Route::post('/midtrans-callback', [MidtransCallbackController::class, 'handle']);
 });

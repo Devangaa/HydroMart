@@ -376,6 +376,7 @@ class TransaksiController extends Controller
                     'unit' => 'hours',
                     'duration' => 24,
                 ],
+                'notification_url' => config('app.url').'/api/midtrans-callback',
             ];
 
             if ($transaksi->metode_pembayaran == 'bca') {
